@@ -22,7 +22,7 @@ from PyQt6.QtWidgets import (
 
 from config.config import (
     BASE_TAG_NAMES,
-    CYOP_AFOM_TAG,
+    GAME_SPECIFIC_TAGS,
 )
 from models.game_modes import get_visible_game_entries
 from presentation.drag_drop import normalize_local_path
@@ -37,7 +37,7 @@ from ui.builders.shared_filters_builder import (
     create_search_button,
     create_sort_controls,
     create_tag_checkboxes,
-    set_pizzatower_only_tag_visibility,
+    set_game_tag_visibility,
 )
 from ui.common.styling import (
     apply_scroll_area_chrome,
@@ -483,29 +483,27 @@ class LibraryTabBuilder(QObject):
         layout.addWidget(sort_combo, 0, align_vcenter)
         layout.addWidget(sort_btn, 0, align_vcenter)
         layout.addSpacing(20)
-        tags_lbl = QLabel(tr("ui.tags_label"))
-        layout.addWidget(tags_lbl, 0, align_vcenter)
         tags = create_tag_checkboxes(
             self.app_state,
             (
                 *BASE_TAG_NAMES,
-                ("cyop_afom", CYOP_AFOM_TAG, "tags.cyop_afom"),
+                *((key, tag, f"tags.{key}") for key, tag, _game in GAME_SPECIFIC_TAGS),
                 "gamebanana",
             ),
         )
         for t in tags.values():
             layout.addWidget(t, 0, align_vcenter)
-        set_pizzatower_only_tag_visibility(
-            tags.get("cyop_afom"),
-            (self.app_state.game_mode.game_id or "deltarune") == "pizzatower",
-        )
+        for key, _tag, game_id in GAME_SPECIFIC_TAGS:
+            set_game_tag_visibility(
+                tags.get(key),
+                (self.app_state.game_mode.game_id or "deltarune") == game_id,
+            )
         layout.addStretch()
         self._attach_actions_widget(layout, show_search=True)
         self.widgets.update(
             {
                 "library_sort_combo": sort_combo,
                 "library_sort_order_btn": sort_btn,
-                "library_tags_label": tags_lbl,
                 "library_tag_widgets": list(tags.values()),
             }
         )
@@ -684,9 +682,6 @@ class LibraryTabBuilder(QObject):
                 self._update_profile_settings_button_style(
                     self.widgets["profile_settings_button"], game_combo, colors
                 )
-        tag_lbl = self.widgets.get("library_tags_label")
-        if tag_lbl:
-            tag_lbl.setStyleSheet(f"color: {colors['main_text']};")
         for label_key in ("library_profile_label", "library_game_label"):
             label = self.widgets.get(label_key)
             if label:

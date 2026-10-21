@@ -9,8 +9,15 @@ from pathlib import Path
 
 from PyQt6.QtCore import pyqtSignal
 
-from models.download_models import TargetKind
+from models.download_models import USE_DECLINED, TargetKind
+from ui.dialogs.mod.version_choice_dialog import WorkerVersionChoice
+from ui.dialogs.unknown_game_dialog import (
+    GAME_READY,
+    MANUAL_INSTALL,
+    WorkerGameResolver,
+)
 from ui.utils.thread_lifetime import ManagedQThread
+from utils.mod.version_package import resolve_package_versions
 from utils.path_utils import get_user_themes_dir
 from utils.process_utils import format_filesystem_error, format_plugin_error
 
@@ -40,6 +47,9 @@ class UseWorker(ManagedQThread):
         self._plugin_install_service = plugin_install_service
         self._themes_dir = themes_dir or get_user_themes_dir()
         self._cancelled = False
+        self._declined = False
+        self._version_choice = WorkerVersionChoice(parent)
+        self._game_resolver = WorkerGameResolver(parent)
 
     def _safe_finish(self, success: bool, needs_manual: bool, message: str) -> None:
         try:
@@ -133,7 +143,10 @@ class UseWorker(ManagedQThread):
                 success = False
 
             if not success:
-                self._safe_finish(False, True, "")
+                if self._declined:
+                    self._safe_finish(False, False, USE_DECLINED)
+                else:
+                    self._safe_finish(False, True, "")
                 return
             self._safe_finish(True, False, "")
         finally:
@@ -296,6 +309,22 @@ class UseWorker(ManagedQThread):
                 )
                 return False
 
+            if not self._metadata.get("update_mod_id"):
+                if (outcome := self._settle_game(mod_config_path)) is None:
+                    self._declined = True
+                    return False
+                if outcome == MANUAL_INSTALL:
+                    return False
+
+            if not self._metadata.get("update_mod_id") and not resolve_package_versions(
+                content_path,
+                lambda name, label, versions: self._version_choice.ask(
+                    name, label, versions, lambda: self._cancelled
+                ),
+            ):
+                self._declined = True
+                return False
+
             config_data = load_mod_config(mod_config_path)
             if not config_data:
                 return False
@@ -309,6 +338,8 @@ class UseWorker(ManagedQThread):
             mod_id = config_data.get("id")
             if isinstance(mod_id, str) and mod_id.startswith(("gb_mod_", "gb_wip_")):
                 for entry in os.listdir(self._mods_dir):
+                    if entry.startswith("."):
+                        continue
                     candidate = os.path.join(self._mods_dir, entry)
                     candidate_config = os.path.join(candidate, MOD_CONFIG_FILENAME)
                     if not os.path.isfile(candidate_config):
@@ -384,6 +415,30 @@ class UseWorker(ManagedQThread):
         finally:
             if staging_root:
                 shutil.rmtree(staging_root, ignore_errors=True)
+
+    def _settle_game(self, mod_config_path: str) -> str | None:
+        """Make sure the game the mod is for exists; see ``resolve_unknown_game``."""
+        from workers.install.helpers_install import load_mod_config
+
+        config_data = load_mod_config(mod_config_path) or {}
+        game_id = config_data.get("game")
+        if not isinstance(game_id, str) or not game_id:
+            return GAME_READY
+        return self._game_resolver.resolve(
+            game_id,
+            str(config_data.get("name") or game_id),
+            self._gamebanana_game_id,
+            lambda: self._cancelled,
+        )
+
+    def _gamebanana_game_id(self) -> int | None:
+        """The GameBanana game this download came from, when it came from GameBanana."""
+        if not (mod_id := self._metadata.get("gb_mod_id")):
+            return None
+        from adapters.gamebanana_adapter import GameBananaAPI
+
+        is_wip = str(self._metadata.get("item_type", "mod")).strip().casefold() == "wip"
+        return GameBananaAPI().get_mod_game_id(mod_id, "Wip" if is_wip else "Mod")
 
     def _is_afom_archive(self, extract_dir: str, gb_metadata: dict) -> bool:
         game = (
@@ -461,7 +516,7 @@ class UseWorker(ManagedQThread):
 
     @staticmethod
     def _apply_gb_metadata(config_data: dict, gb_metadata: dict) -> None:
-        from adapters.gamebanana_adapter import GameBananaAPI
+        from utils.mod.tags import normalize_tags
 
         mod_id = gb_metadata.get("mod_id")
         if mod_id:
@@ -473,23 +528,14 @@ class UseWorker(ManagedQThread):
             config_data["icon"] = gb_metadata["icon"]
         if gb_metadata.get("version"):
             config_data["version"] = str(gb_metadata["version"])
-        tags = gb_metadata.get("tags") or []
+        existing = config_data.get("tags")
+        if not isinstance(existing, list):
+            existing = [existing] if existing else []
+        tags = normalize_tags(
+            [*existing, *(gb_metadata.get("tags") or []), gb_metadata.get("category")]
+        )
         if tags:
-            existing = config_data.get("tags", [])
-            if not isinstance(existing, list):
-                existing = [existing] if existing else []
-            for t in tags:
-                if t and t not in existing:
-                    existing.append(t)
-            config_data["tags"] = existing
-        category_tag = GameBananaAPI.category_to_tag(gb_metadata.get("category"))
-        if category_tag:
-            existing = config_data.get("tags", [])
-            if not isinstance(existing, list):
-                existing = [existing] if existing else []
-            if category_tag not in existing:
-                existing.append(category_tag)
-            config_data["tags"] = existing
+            config_data["tags"] = tags
 
     @staticmethod
     def _update_config_id(mod_dir: str, gb_metadata: dict) -> None:

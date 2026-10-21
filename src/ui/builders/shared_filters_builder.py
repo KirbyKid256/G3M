@@ -126,8 +126,8 @@ def create_tag_checkboxes(app_state, tag_names):
     return tags
 
 
-def set_pizzatower_only_tag_visibility(checkbox: QCheckBox | None, visible: bool) -> None:
-    """Show CYOP/AFOM tag only for Pizza Tower and clear stale checked state."""
+def set_game_tag_visibility(checkbox: QCheckBox | None, visible: bool) -> None:
+    """Show a game-specific tag only for its game and clear stale checked state."""
     if checkbox is None:
         return
     blocked = checkbox.blockSignals(True)
@@ -241,8 +241,27 @@ def apply_filters_frame_style(frame: QFrame, app_state):
             frame, get_border_radius(app_state.local_config)
         )
         padding = max(max(1, int(8 * zoom_factor)), (radius * 3 + 9) // 10)
+        # Tighter combo padding and arrow area: the strip is the first thing to run out of room.
         frame.setStyleSheet(
-            f"QFrame#filters {{ background-color: {filter_bg_color}; border: {border_width}px solid {filter_border_color}; padding: {padding}px; border-radius: {radius}px; }}"
+            f"QFrame#filters {{ background-color: {filter_bg_color}; border: none; padding: {padding + border_width}px; border-radius: {radius}px; }}"
+            f"QFrame#filters QComboBox {{ padding: {max(1, int(5 * zoom_factor))}px {max(1, int(6 * zoom_factor))}px {max(1, int(5 * zoom_factor))}px {max(1, int(9 * zoom_factor))}px; }}"
+            f"QFrame#filters QComboBox::drop-down {{ width: {max(1, int(22 * zoom_factor))}px; margin-right: {max(1, int(2 * zoom_factor))}px; }}"
+        )
+        # The border sits on the scroll viewport so it stays put while the strip scrolls.
+        if not (viewport := frame.parentWidget()):
+            return
+        if not (border := viewport.findChild(QFrame, "filtersBorder")):
+            border = QFrame(viewport)
+            border.setObjectName("filtersBorder")
+            border.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            install_widget_update_handler(
+                viewport,
+                lambda: (border.setGeometry(viewport.rect()), border.raise_()),
+                attr_name="_filters_border_filter",
+            )
+            border.show()
+        border.setStyleSheet(
+            f"QFrame#filtersBorder {{ background: transparent; border: {border_width}px solid {filter_border_color}; border-radius: {radius}px; }}"
         )
 
     install_widget_update_handler(

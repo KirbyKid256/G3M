@@ -167,6 +167,11 @@ def sync_scroll_area_height(widget, scroll_area) -> None:
     scrollbar_height = scroll_area.horizontalScrollBar().sizeHint().height()
     if not isinstance(height, int) or not isinstance(scrollbar_height, int):
         return
+    # The scrollbar only takes room when the strip is wider than the area it scrolls in.
+    needed = widget.minimumSizeHint().expandedTo(widget.minimumSize()).width()
+    available = scroll_area.viewport().width()
+    if isinstance(needed, int) and isinstance(available, int) and needed <= available:
+        scrollbar_height = 0
     scroll_area.setFixedHeight(height + scrollbar_height)
 
 
@@ -176,10 +181,20 @@ def install_size_hint_height_sync(
     def sync_height() -> None:
         sync_scroll_area_height(widget, scroll_area)
 
+    viewport_width = []
+
+    def sync_on_width_change() -> None:
+        # Only a width change can add or remove the scrollbar; heights set from outside stay put.
+        width = scroll_area.viewport().width()
+        if viewport_width != [width]:
+            viewport_width[:] = [width]
+            sync_height()
+
+    install_widget_update_handler(widget, sync_height, attr_name=attr_name)
     install_widget_update_handler(
-        widget,
-        sync_height,
-        attr_name=attr_name,
+        scroll_area.viewport(),
+        sync_on_width_change,
+        attr_name=f"{attr_name}_viewport",
     )
     install_widget_update_handler(
         scroll_area.horizontalScrollBar(),
@@ -835,7 +850,7 @@ def style_filter_scroll_area(
     )
     apply_scroll_area_chrome(
         scroll_area,
-        max(0, radius - 2),
+        radius,
         scrollbar_radius=radius,
         qss=qss,
         minimum_extent=thickness,

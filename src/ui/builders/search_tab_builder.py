@@ -7,14 +7,13 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QFrame,
     QGridLayout,
-    QLabel,
     QScrollArea,
     QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
 
-from config.config import BASE_TAG_NAMES, CYOP_AFOM_TAG, QSS_TRANSPARENT_SCROLL
+from config.config import BASE_TAG_NAMES, BROWSER_GAME_TAGS, QSS_TRANSPARENT_SCROLL
 from models.game_modes import get_search_game_entries
 from services.localization_service import tr
 from ui.builders.shared_filters_builder import (
@@ -26,7 +25,7 @@ from ui.builders.shared_filters_builder import (
     create_search_button,
     create_sort_controls,
     create_tag_checkboxes,
-    set_pizzatower_only_tag_visibility,
+    set_game_tag_visibility,
 )
 from ui.common.styling import (
     apply_panel_style,
@@ -169,19 +168,21 @@ class ModsBrowserTabBuilder(QObject):
         )
         layout.addWidget(modgame_combo, 0, align_vcenter)
         layout.addSpacing(20)
-        tags_label = QLabel(tr("ui.tags_label"))
-        tags_label.setToolTip(tr("tooltips.filter_by_tag"))
-        layout.addWidget(tags_label, 0, align_vcenter)
         tags = create_tag_checkboxes(
             self.app_state,
-            (*BASE_TAG_NAMES, ("cyop_afom", CYOP_AFOM_TAG, "tags.cyop_afom")),
+            (
+                *BASE_TAG_NAMES,
+                *((key, tag, f"tags.{key}") for key, tag, _game in BROWSER_GAME_TAGS),
+                ("g3m", "g3m", "ui.only_g3m"),
+            ),
         )
+        tags["g3m"].setToolTip(tr("ui.g3m_confirmed_tooltip"))
         for t in tags.values():
             layout.addWidget(t, 0, align_vcenter)
-        set_pizzatower_only_tag_visibility(
-            tags.get("cyop_afom"),
-            (modgame_combo.currentData() or "deltarune") == "pizzatower",
-        )
+        for key, _tag, game_id in BROWSER_GAME_TAGS:
+            set_game_tag_visibility(
+                tags.get(key), (modgame_combo.currentData() or "deltarune") == game_id
+            )
         show_nsfw_checkbox = QCheckBox(tr("ui.show_nsfw"))
         show_nsfw_checkbox.setChecked(
             bool(self.app_state.local_config.get("show_nsfw", False))
@@ -202,7 +203,6 @@ class ModsBrowserTabBuilder(QObject):
                 "sort_combo": sort_combo,
                 "sort_order_btn": sort_btn,
                 "modgame_combo": modgame_combo,
-                "tags_label": tags_label,
                 "show_nsfw_checkbox": show_nsfw_checkbox,
                 "blocklist_button": blocklist_btn,
                 "search_button": search_btn,

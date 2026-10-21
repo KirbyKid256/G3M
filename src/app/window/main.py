@@ -637,7 +637,7 @@ class AppWindow(QWidget):
         self.app_state.progress_bar_visible_changed.connect(
             self.progress_bar.setVisible
         )
-        self.app_state.progress_bar_value_changed.connect(self.progress_bar.setValue)
+        self.app_state.progress_bar_value_changed.connect(self._glide_progress)
         self.bottom_frame.addWidget(self.status_label)
         self.bottom_frame.addWidget(self.progress_bar)
         self.bottom_frame.addLayout(self.action_frame)
@@ -1166,6 +1166,9 @@ class AppWindow(QWidget):
 
     def _on_update_cleanup(self):
         on_update_cleanup(self)
+
+    def _glide_progress(self, value: int) -> None:
+        UIAnimator.progress_to(self.progress_bar, value, self.app_state)
 
     def _on_progress_update(self, value: int):
         on_progress_update(self, value)

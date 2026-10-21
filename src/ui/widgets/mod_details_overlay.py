@@ -957,10 +957,20 @@ class ModDetailsOverlay(QWidget):
                 getattr(self.mod_data, "gamebanana_category", None)
                 or getattr(self.mod_data, "category", None),
             ),
+            *(
+                (
+                    ("ui.g3m_compat_label", tr("ui.g3m_compat_details")),
+                    ("ui.game_version_label", entry.game_version),
+                    ("ui.g3m_note_label", entry.note),
+                )
+                if (entry := GameBananaAPI.g3m_confirmed.get(get_mod_id(self.mod_data) or ""))
+                else ()
+            ),
         ):
             if value:
                 label = QLabel(self._meta_row_html(key, value))
                 label.setProperty("metaValue", str(value))
+                label.setProperty("metaValueKey", "ui.g3m_compat_details" if key == "ui.g3m_compat_label" else "")
                 label.setWordWrap(True)
                 label.setTextInteractionFlags(
                     Qt.TextInteractionFlag.TextSelectableByMouse
@@ -1119,6 +1129,8 @@ class ModDetailsOverlay(QWidget):
             value = (
                 self._translated_tags()
                 if label.property("translatedTags")
+                else tr(label.property("metaValueKey"))
+                if label.property("metaValueKey")
                 else label.property("metaValue")
             )
             label.setText(self._meta_row_html(key, str(value or "")))

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -48,7 +49,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from config.config import CYOP_AFOM_TAG
+from config.config import GAME_SPECIFIC_TAGS
 from models.game_modes import get_game, get_visible_game_entries
 from services.localization_service import tr
 from ui.common.dialog_theme import DynamicDialog
@@ -77,6 +78,7 @@ from utils.mod.config import (
     validate_mod_config,
     write_mod_config,
 )
+from utils.mod.icon_files import IconFiles
 from utils.mod.legacy_config_migration import migrate_legacy_config
 from utils.mod.operation_plan import (
     ModPathContext,
@@ -238,6 +240,8 @@ class ModEditorDialog(DynamicDialog):
         self._hash_errors: dict[tuple[tuple[int, ...], str], str] = {}
         self._hash_threads: set[_OperationHashThread] = set()
         self._last_browse_dir = os.path.expanduser("~")
+        self._icon_session: IconFiles | None = None
+        self._initial_state: str | None = None
         self._cfg = getattr(self._app_state, "local_config", {}) or {}
         self._operation_icons: dict[str, QIcon] = {}
         self._refresh_operation_icons()
@@ -248,6 +252,18 @@ class ModEditorDialog(DynamicDialog):
         self._populate()
         self.relocalize_ui()
         self.apply_theme()
+        self._initial_state = self._form_state()
+
+    def _form_state(self) -> str | None:
+        """A comparable snapshot of everything the editor would save."""
+        try:
+            return json.dumps(self._config(), sort_keys=True, default=str)
+        except Exception:
+            logger.debug("Could not snapshot the mod editor state", exc_info=True)
+            return None
+
+    def _has_changes(self) -> bool:
+        return self._initial_state is None or self._form_state() != self._initial_state
 
     @staticmethod
     def _find_app_state(parent) -> object | None:
@@ -369,8 +385,16 @@ class ModEditorDialog(DynamicDialog):
         self.tag_customization = self.localize_text(QCheckBox(self), "tags.customization")
         self.tag_gameplay = self.localize_text(QCheckBox(self), "tags.gameplay")
         self.tag_other = self.localize_text(QCheckBox(self), "tags.other")
-        for index, checkbox in enumerate((self.tag_textedit, self.tag_customization, self.tag_gameplay, self.tag_other)):
+        self._game_tag_boxes = {
+            tag: (self.localize_text(QCheckBox(self), f"tags.{key}"), game_id)
+            for key, tag, game_id in GAME_SPECIFIC_TAGS
+        }
+        for index, checkbox in enumerate(
+            (self.tag_textedit, self.tag_customization, self.tag_gameplay, self.tag_other,
+             *(box for box, _game_id in self._game_tag_boxes.values()))
+        ):
             tags.addWidget(checkbox, index // 2, index % 2)
+        self.game_combo.currentIndexChanged.connect(self._refresh_game_tags)
         form.addRow(self.localize_text(QLabel(self), "ui.mod_tags_label"), tags)
         self.version_edit = QLineEdit(self)
         self.version_edit.setMaxLength(MOD_CONFIG_MAX_DISPLAY_CHARS)
@@ -1455,6 +1479,14 @@ class ModEditorDialog(DynamicDialog):
         else:
             self._validate()
 
+    def _refresh_game_tags(self) -> None:
+        """Offer a game-specific tag only while its game is selected."""
+        for box, game_id in self._game_tag_boxes.values():
+            selected = self.game_combo.currentData() == game_id
+            box.setVisible(selected)
+            if not selected:
+                box.setChecked(False)
+
     def _config(self, mod_id: str | None = None) -> dict[str, object]:
         tags = [
             name
@@ -1466,9 +1498,11 @@ class ModEditorDialog(DynamicDialog):
             )
             if box.isChecked()
         ]
-        existing_tags = self.mod_data.get("tags")
-        if isinstance(existing_tags, list) and CYOP_AFOM_TAG in existing_tags:
-            tags.append(CYOP_AFOM_TAG)
+        tags.extend(
+            tag
+            for tag, (box, game_id) in self._game_tag_boxes.items()
+            if box.isChecked() and self.game_combo.currentData() == game_id
+        )
         config: dict[str, object] = {
             "config_version": MOD_CONFIG_VERSION,
             "id": mod_id or self.mod_id or "editor_hash",
@@ -1684,6 +1718,8 @@ class ModEditorDialog(DynamicDialog):
         tags: list[object] = raw_tags if isinstance(raw_tags, list) else []
         for name, box in (("textedit", self.tag_textedit), ("customization", self.tag_customization), ("gameplay", self.tag_gameplay), ("other", self.tag_other)):
             box.setChecked(name in tags)
+        for tag, (box, _game_id) in self._game_tag_boxes.items():
+            box.setChecked(tag in tags)
         if self.is_creating and not tags:
             self.tag_other.setChecked(True)
         wanted = data.get("game") or getattr(getattr(self._app_state, "game_mode", None), "game_id", "")
@@ -1691,6 +1727,7 @@ class ModEditorDialog(DynamicDialog):
             if self.game_combo.itemData(index) == wanted:
                 self.game_combo.setCurrentIndex(index)
                 break
+        self._refresh_game_tags()
         for field in ("dependencies", "conflicts"):
             self._populate_relations(field, data.get(field))
         self._refresh_custom_placeholders()
@@ -1700,7 +1737,46 @@ class ModEditorDialog(DynamicDialog):
         path, _ = get_open_file_name(self, tr("ui.select_icon_file"), self._last_browse_dir, get_file_filter("image_files"))
         if path:
             self._last_browse_dir = os.path.dirname(path)
-            self.icon_edit.setText(path)
+            self.icon_edit.setText(self._adopt_icon(path))
+
+    def _adopt_icon(self, source: str) -> str:
+        """Put a picked icon into the mod's folder right away and return what the field should show.
+
+        A mod that is still being created has no folder yet, so the picked path stays as it is and
+        is copied when the mod is saved.
+        """
+        if (files := self._icon_files()) is None:
+            return source
+        return files.adopt(source, self._current_icon_file())
+
+    def _icon_files(self) -> IconFiles | None:
+        if self._icon_session is None and (root := self._find_mod_folder()):
+            icon = str(self.mod_data.get("icon", ""))
+            original = os.path.join(root, icon.removeprefix("${mod_path}/")) if icon.startswith("${mod_path}/") else None
+            self._icon_session = IconFiles(root, original, self._icon_is_referenced)
+        return self._icon_session
+
+    def _current_icon_file(self) -> str | None:
+        """The file inside the mod that the icon field points at now, if there is one."""
+        root, text = self._find_mod_folder(), self.icon_edit.text().strip()
+        if not root or not text or text.startswith(("http://", "https://")):
+            return None
+        candidate = os.path.join(root, text.removeprefix("${mod_path}/"))
+        return candidate if os.path.isfile(candidate) else None
+
+    def _icon_is_referenced(self, path: str) -> bool:
+        """Whether a mod operation uses this file, so replacing the icon must leave it alone."""
+        root = self._find_mod_folder()
+        if not root:
+            return True
+        relative = os.path.relpath(path, root).replace(os.sep, "/")
+        placeholders = self._custom_placeholders if isinstance(self._custom_placeholders, dict) else {}
+        for _group, leaf in iter_mod_config_leaves(self._operation_files):
+            source = leaf.get("source")
+            used = mod_local_relative_path(source, placeholders) if isinstance(source, str) else None
+            if used is not None and (not used.strip("/") or relative == used.strip("/") or relative.startswith(used.rstrip("/") + "/")):
+                return True
+        return False
 
     def _load_icon_preview(self, path: str) -> None:
         self._icon_preview_timer.stop()
@@ -1749,15 +1825,10 @@ class ModEditorDialog(DynamicDialog):
             return None
         if source.startswith("${mod_path}/"):
             return source.removeprefix("${mod_path}/")
-        if not os.path.isfile(source):
-            source = os.path.join(self._find_mod_folder() or "", source)
-        if not os.path.isfile(source):
-            return None
-        filename = os.path.basename(source)
-        target = os.path.join(root, filename)
-        if os.path.abspath(source) != os.path.abspath(target):
-            shutil.copy2(source, target)
-        return filename
+        if self.is_creating or (files := self._icon_files()) is None:
+            files = IconFiles(root, None, lambda _path: True)
+            self._icon_session = files
+        return files.place(source)
 
     def _save(self) -> None:
         if not self._valid_for_save():
@@ -1774,13 +1845,19 @@ class ModEditorDialog(DynamicDialog):
             config = self._config(mod_id)
             if icon := self._copy_icon(root):
                 config["icon"] = f"${{mod_path}}/{icon}"
+            elif (kept := str(config.get("icon", ""))).startswith("${mod_path}/") and not os.path.isfile(
+                os.path.join(root, kept.removeprefix("${mod_path}/"))
+            ):
+                config.pop("icon")
             write_mod_config(os.path.join(root, "mod_config.json"), config)
         except Exception as error:
             self._safe_critical(self, tr("errors.update_error"), tr("errors.local_mod_update_failed", error=format_filesystem_error(error)))
             return
+        if self._icon_session:
+            self._icon_session.commit(str(config.get("icon", "")).removeprefix("${mod_path}/") or None)
         self._refresh_library()
         self.accept()
-        self._safe_information(self, tr("dialogs.success"), tr("dialogs.local_mod_created_message" if self.is_creating else "dialogs.local_mod_updated_message", mod_name=self.name_edit.text().strip()))
+        self._safe_information(self.parent_app, tr("dialogs.success"), tr("dialogs.local_mod_created_message" if self.is_creating else "dialogs.local_mod_updated_message", mod_name=self.name_edit.text().strip()))
 
     def _find_mod_folder(self) -> str | None:
         path = self.mod_data.get("folder_path")
@@ -1808,21 +1885,33 @@ class ModEditorDialog(DynamicDialog):
             label.setText(tr(key))
             label.setFixedWidth(width)
 
-    def closeEvent(self, a0) -> None:
-        event = cast(QCloseEvent, a0)
+    def _release_background_work(self) -> None:
+        self._icon_preview_timer.stop()
         for thread in list(self._hash_threads):
             retire_qthread(thread)
         self._hash_threads.clear()
+
+    def closeEvent(self, a0) -> None:
+        event = cast(QCloseEvent, a0)
+        self._release_background_work()
         super().closeEvent(event)
+
+    def done(self, a0: int) -> None:
+        # Saving or cancelling only hides the dialog, so closeEvent never runs for them.
+        self._release_background_work()
+        super().done(a0)
 
     def _cancel(self) -> None:
         self.reject()
 
     def reject(self) -> None:
-        if self._safe_question(
+        if self._has_changes() and self._safe_question(
             self, tr("dialogs.cancel_changes"), tr("dialogs.unsaved_changes_lost")
-        ) == QMessageBox.StandardButton.Yes:
-            super().reject()
+        ) != QMessageBox.StandardButton.Yes:
+            return
+        if self._icon_session:
+            self._icon_session.rollback()
+        super().reject()
 
     def _delete(self) -> None:
         root = self._find_mod_folder()

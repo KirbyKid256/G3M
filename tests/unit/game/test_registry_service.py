@@ -142,3 +142,39 @@ def test_custom_game_load_keeps_windows_exe_default_data_win(registry_service):
     game = get_game("custom_windows")
     assert game is not None
     assert game.data_file_name == "data.win"
+
+
+def test_custom_game_can_take_the_id_a_mod_names(registry_service):
+    record = registry_service.create_custom_game(
+        display_name="Hotline Game",
+        primary_executable="hotline.exe",
+        data_file_name="data.win",
+        game_id="hotline-game",
+    )
+
+    assert record.id == "hotline-game"
+    assert get_game("hotline-game") is not None
+
+
+@pytest.mark.parametrize(
+    ("game_id", "error"),
+    [
+        ("Has Caps", "games.validation_id_invalid"),
+        ("self", "games.validation_id_invalid"),
+        ("1game", "games.validation_id_invalid"),
+        ("deltarune", "games.validation_id_taken"),
+    ],
+)
+def test_custom_game_id_must_be_valid_and_free(registry_service, game_id, error):
+    with pytest.raises(GameRegistryValidationError) as caught:
+        registry_service.create_custom_game(
+            display_name="Other", primary_executable="o.exe", data_file_name="data.win", game_id=game_id
+        )
+
+    assert caught.value.key == error
+
+
+def test_registry_reports_whether_an_id_is_free_for_a_new_game(registry_service):
+    assert registry_service.is_valid_new_game_id("brand-new")
+    assert not registry_service.is_valid_new_game_id("deltarune")
+    assert not registry_service.is_valid_new_game_id("Bad Id")

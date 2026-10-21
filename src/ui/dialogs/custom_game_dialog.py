@@ -22,10 +22,23 @@ from ui.common.dialog_theme import (
 class CustomGameDialog(DynamicDialog):
     """Minimal custom-game editor."""
 
-    def __init__(self, app_state, record=None, parent=None) -> None:
+    def __init__(
+        self,
+        app_state,
+        record=None,
+        parent=None,
+        *,
+        game_id: str = "",
+        mod_name: str = "",
+        gamebanana_id: int | None = None,
+    ) -> None:
+        """``game_id`` and friends prefill the dialog for a game that an installed mod asks for."""
         super().__init__(parent)
         self.app_state = app_state
         self.record = record
+        self.game_id = game_id
+        self.mod_name = mod_name
+        self.prefilled_gamebanana_id = gamebanana_id
         self._is_editing = record is not None
         self.setWindowTitle(
             tr("games.edit_custom_title") if record else tr("games.add_custom_title")
@@ -46,8 +59,18 @@ class CustomGameDialog(DynamicDialog):
     def _build_ui(self) -> None:
         layout = QVBoxLayout(self)
         form = QFormLayout()
+        if self.game_id:
+            self.mod_help = QLabel()
+            self.mod_help.setObjectName("customGameHelpLabel")
+            self.mod_help.setWordWrap(True)
+            layout.addWidget(self.mod_help)
+            self.game_id_edit = QLineEdit(self.game_id)
+            self.game_id_edit.setReadOnly(True)
+            form.addRow(tr("games.game_id_label"), self.game_id_edit)
         self.display_name_edit = QLineEdit(
-            self.record.display_name if self.record else ""
+            self.record.display_name
+            if self.record
+            else self.game_id.replace("_", " ").replace("-", " ").title()
         )
         self.display_name_edit.setPlaceholderText(tr("games.display_name_placeholder"))
         form.addRow(tr("games.display_name_label"), self.display_name_edit)
@@ -79,7 +102,9 @@ class CustomGameDialog(DynamicDialog):
         self.steam_app_id_edit.setPlaceholderText(tr("games.steam_app_id_placeholder"))
         form.addRow(tr("games.steam_app_id_label"), self.steam_app_id_edit)
         self.gamebanana_id_edit = QLineEdit(
-            str(self.record.gamebanana_id or "") if self.record else ""
+            str(self.record.gamebanana_id or "")
+            if self.record
+            else str(self.prefilled_gamebanana_id or "")
         )
         self.gamebanana_id_edit.setPlaceholderText(
             tr("games.gamebanana_id_placeholder")
@@ -103,6 +128,10 @@ class CustomGameDialog(DynamicDialog):
             if self._is_editing
             else tr("games.add_custom_title")
         )
+        if self.game_id:
+            self.mod_help.setText(tr("games.add_for_mod_help", name=self.mod_name))
+            if isinstance(label := self.form_layout.labelForField(self.game_id_edit), QLabel):
+                label.setText(tr("games.game_id_label"))
         for field, label_key, placeholder_key in (
             (
                 self.display_name_edit,

@@ -11,6 +11,7 @@ import uuid
 from PyQt6.QtCore import QObject, QTimer, pyqtSignal
 
 from models.download_models import (
+    USE_DECLINED,
     DownloadRecord,
     DownloadStatus,
     SourceKind,
@@ -209,6 +210,7 @@ class DownloadsManager(QObject):
             target_path,
             expected_md5=record.metadata.get("md5") if gamebanana else None,
             allowed_hosts=GAMEBANANA_DOWNLOAD_HOSTS if gamebanana else None,
+            md5_refresh=(lambda: self._fetch_live_md5(record.metadata)) if gamebanana else None,
             parent=self,
         )
         worker.progress_updated.connect(self._on_download_progress)
@@ -219,6 +221,17 @@ class DownloadsManager(QObject):
         )
         self._workers[record.id] = worker
         worker.start()
+
+    @staticmethod
+    def _fetch_live_md5(metadata: dict) -> str | None:
+        """Re-read the file checksum when the cached listing predates a re-upload."""
+        from adapters.gamebanana_adapter import GameBananaAPI
+
+        item_type = "Wip" if metadata.get("item_type") == "wip" else "Mod"
+        for file_data in GameBananaAPI().get_mod_files(metadata.get("gb_mod_id"), item_type) or []:
+            if str(file_data.get("_idRow")) == str(metadata.get("gb_file_id")):
+                return str(file_data.get("_sMd5Checksum") or "").strip().casefold() or None
+        return None
 
     def _on_download_progress(
         self, record_id: str, pct: int, bytes_recv: int, bytes_total: int
@@ -305,8 +318,9 @@ class DownloadsManager(QObject):
         record.file_path = saved_path
         record.file_exists = True
         record.finished_at = utc_now_iso()
+        record.error_message = error or None
 
-        if record.auto_use:
+        if record.auto_use and not error:
             record.use_status = UseStatus.PENDING_AUTO
             self._store.update(record)
             self.record_updated.emit(record)
@@ -376,6 +390,12 @@ class DownloadsManager(QObject):
         worker = self._workers.pop(record_id, None)
         _cleanup_worker(worker)
 
+        if error == USE_DECLINED:
+            record.use_status = UseStatus.READY
+            self._store.update(record)
+            self.record_updated.emit(record)
+            self._emit_badge()
+            return
         if not success and not needs_manual:
             record.use_status = UseStatus.FAILED
             record.error_message = error or "Use failed"
@@ -391,6 +411,7 @@ class DownloadsManager(QObject):
             return
         self._remember_gamebanana_file(record)
         record.ever_installed = True
+        record.error_message = None
         if record.delete_after_use:
             record.use_status = UseStatus.READY
             self.record_updated.emit(record)

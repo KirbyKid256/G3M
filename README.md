@@ -182,7 +182,7 @@ The repository includes unit, integration, and Qt UI coverage for core areas suc
 
 ## Customization and Localization
 
-Import and export themes, add custom fonts and language packs, or adjust the built-in appearance settings. See the [G3M Wiki](https://g3m.gitbook.io/g3m-wiki) for setup guides and details about creating themes, translations, plugins, and mods.
+Import and export themes, add custom fonts and language packs, or adjust the built-in appearance settings. See the [G3MWiki](https://g3m.gitbook.io/g3m-wiki) for setup guides and details about creating themes, translations, plugins, and mods.
 
 ## Legal
 

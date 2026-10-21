@@ -20,6 +20,7 @@ from models.game_modes import (
 from utils.time_utils import utc_now_iso
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
+_GAME_ID_RE = re.compile(r"[a-z][a-z0-9_-]{0,63}")
 
 
 class GameRegistryValidationError(ValueError):
@@ -78,9 +79,11 @@ class GameRegistryService(QObject):
         data_file_name: str,
         steam_app_id: str = "",
         gamebanana_id: str = "",
+        game_id: str = "",
     ) -> CustomGameRecord:
+        """Add a custom game; ``game_id`` fixes its id (a mod already names it), else one is made."""
         record = CustomGameRecord(
-            id=self._generate_custom_id(display_name),
+            id=self._validate_game_id(game_id) if game_id else self._generate_custom_id(display_name),
             display_name=display_name.strip(),
             primary_executable=self._validate_executable(primary_executable),
             data_file_name=self._validate_data_file_name(data_file_name),
@@ -290,6 +293,22 @@ class GameRegistryService(QObject):
             candidate = f"custom_{base}_{suffix}"
             suffix += 1
         return candidate
+
+    def is_valid_new_game_id(self, value: str) -> bool:
+        """Whether ``create_custom_game`` would accept ``value`` as the id of a new game."""
+        try:
+            self._validate_game_id(value)
+        except GameRegistryValidationError:
+            return False
+        return True
+
+    def _validate_game_id(self, value: str) -> str:
+        result = value.strip()
+        if not _GAME_ID_RE.fullmatch(result) or result == "self":
+            raise GameRegistryValidationError("games.validation_id_invalid")
+        if result in {entry.id for entry in self.list_manager_games()}:
+            raise GameRegistryValidationError("games.validation_id_taken")
+        return result
 
     @staticmethod
     def _validate_executable(value: str) -> str:

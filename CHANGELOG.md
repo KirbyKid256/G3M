@@ -1,3 +1,15 @@
+### Version 3.4.3 — 21.10.26
+
+- Added the **FB-Addon** tag for FRICKBEARS3 content, which converted addons receive automatically. It and **CYOP/AFOM** can be chosen in Mod Editor and the web editor only while FRICKBEARS3 or Pizza Tower is selected.
+- Mods Browser cards now show badges before the likes: **G3M** badge for safe mods confirmed to install without Manual installation, a work-in-progress badge, and a note badge (For some additional info). The new **G3M Verified** filter lists only confirmed **G3M Badge** mods.
+- Mods with saved versions can now be exported and installed selectively. Exporting asks whether to include only the active version or also chosen saved versions, and installing a G3M mod that contains `mod_versions` lets you pick which versions to keep and which one is active. Only versions with a supported config are offered. Dragging a mod out of the Library shows the file you are dragging and exports it only when you drop it. **Mod Versions** in Library settings can skip the question by always choosing only the active version or all versions.
+- A G3M mod made for a game that is not set up in G3M no longer fails. You can install it manually as usual or add the game right away, with its ID and GameBanana game filled in from the mod. The mod is installed as soon as the game is added.
+- The **G3M Verified** list now records the game and the supported game version of each mod; the version appears in mod details.
+- Fixed GameBanana mods already in G3M format being sent to Manual installation. Unsupported tags are now converted to the closest supported tag, or to `other`.
+- A download that does not match GameBanana's checksum is now kept with a warning, and you decide whether to install it.
+- Fixed updates through Manual installation or conversions leaving a second copy of the mod in the Library.
+- Fixed the filters bar border being cut off at the window edges when the filters do not fit; it now stays in place while the filters scroll.
+
 ### Version 3.4.2 — 10.10.26
 
 - Fixed game detection for games launched through Wine and other process wrappers. G3M now confirms process exit before starting session cleanup, and prevents concurrent instances while forwarding activation requests to the running instance.
