@@ -420,9 +420,7 @@
   },
   "files": {
     "data_file": "DATA - 檔案",
-    "dependency_only": "不安裝",
     "game_folder_target": "遊戲資料夾",
-    "data_folder_target": "遊戲資料資料夾",
     "custom_target": "自訂資料夾",
     "custom_target_folder": "自訂資料夾：",
     "icon_label": "圖標",
@@ -434,7 +432,6 @@
   "tabs": {
     "demo": "Demo版",
     "main_menu": "主選單",
-    "menu_root": "選單/根目錄",
     "undertale": "Undertale",
     "undertaleyellow": "UNDERTALE Yellow",
     "pizzatower": "Pizza Tower",
@@ -621,21 +618,17 @@
     "clear_g3mtool_cache_confirm_title": "清除 G3MTool 快取",
     "clear_g3mtool_cache_confirm_text": "要清除 G3MTool 快取嗎？在快取重新產生之前，補丁和合併可能會稍慢。僅在需要釋放空間，或補丁/合併明顯變差時這樣做。",
     "select_target_folder": "選擇目標資料夾",
-    "finish_creating_mod": "完成創建模組",
     "mod_created_successfully": "模組創建成功",
     "data_file": "DATA 檔案",
     "no_patch_files_available": "沒有可新增的補丁檔案",
-    "enter_relative_path": "例如：sprites/bgs",
     "path_outside_game_folder": "所選位置必須位於遊戲安裝資料夾或遊戲資料資料夾內，視目標類型而定。",
     "conflicts": {
       "title": "偵測到模組合併衝突",
-      "total_conflicts": "偵測到的衝突總數：{count}",
       "summary": "衝突：{conflicts} | 自動解決：{auto_resolved}",
       "open_report": "開啟報告"
     },
     "patching_warning": {
       "title": "補丁警告",
-      "operations_review": "部分模組操作需要您的確認。繼續將套用列出的變更；無法使用的操作將被略過。",
       "relation_review": "目前的模組順序不符合相依性建議。您可以套用已驗證的順序、不變更直接啟動，或取消。",
       "apply_arrangement": "套用建議",
       "launch_without_changes": "不變更直接啟動",
@@ -666,7 +659,6 @@
     "undertale_not_found": "找不到UNDERTALE。",
     "undertaleyellow_not_found": "找不到UNDERTALE Yellow。",
     "pizzatower_not_found": "找不到PizzaTower.exe檔案。",
-    "enter_file_group_key": "輸入此檔案組的鍵/名稱：",
     "file_group_name": "檔案組名稱",
     "full_install_game": "從零安裝{game_name}",
     "game_path_instruction": "{message}\\n\\n請指定遊戲資料夾。在macOS上，選擇.app檔案（例如DELTARUNE.app、UNDERTALE.app）。",
@@ -687,8 +679,6 @@
     "show_unlisted_info_files": "顯示未列出的檔案 ({count})",
     "macos_install_unavailable": "在macOS上無法安裝遊戲檔案。\\n嘗試透過Steam安裝Demo版。",
     "mod_name_empty": "模組名稱不能為空。",
-    "empty_data_file_section": "請填寫或刪除「{tab_name}」分頁中的空 DATA 檔案區塊。",
-    "empty_extra_file_section": "請填寫或刪除「{tab_name}」分頁中的空額外檔案 #{number} 區塊。",
     "mod_name_too_long": "模組名稱不能超過50個字元。",
     "mod_version_too_long": "模組版本不能超過20個字元。",
     "mod_homepage_too_long": "主頁不能超過200個字元。",
@@ -705,12 +695,9 @@
     "select_undertale_folder": "選擇UNDERTALE遊戲資料夾",
     "select_undertaleyellow_folder": "選擇UNDERTALE Yellow遊戲資料夾",
     "select_pizzatower_folder": "選擇Pizza Tower資料夾",
-    "tab_extra_file_not_found": "在「{tab_name}」標籤中未找到額外檔案：{path}",
-    "tab_file_not_found": "在「{tab_name}」標籤中未找到檔案：{path}",
     "unavailable": "不可用",
     "unsaved_changes_lost": "所有未儲存的更改將丟失。繼續？",
     "update_permission_error_details": "由於權限不足或檔案被鎖定，無法替換G3M檔案。\n\n請嘗試以下操作：\n1. 關閉G3M並以管理員身份執行安裝程式。\n2. 暫時禁用殺毒軟體/SmartScreen或允許安裝程式。\n3. 安裝到不同的資料夾（例如桌面）並從那個位置執行。\n4. 或手動下載更新並替換應用程式。",
-    "validation_error": "驗證錯誤",
     "want_download_install_now": "要立即下載並安裝嗎？<br>",
     "whats_new": "新增內容：",
     "select_background_music": "選擇背景音樂音頻檔案",
@@ -991,8 +978,7 @@
     "no_description": "無描述",
     "not_specified": "未指定",
     "local_mod": "本地模組",
-    "unknown": "未知",
-    "multiple_authors": "多位作者"
+    "unknown": "未知"
   },
   "file_descriptions": {
     "font_files": "字體檔案",
@@ -1248,10 +1234,7 @@
     "direct": "直接",
     "select_folder": "選擇儲存捷徑的資料夾",
     "created": "捷徑已建立：\n{path}",
-    "creation_failed": "建立捷徑失敗：{error}",
-    "too_many_mods": "捷徑的每個步驟僅支援一個模組。請將模組放在不同步驟中，或不選擇模組（原版）。",
-    "error_no_game_path": "{game} 的遊戲路徑未設定。請先在 設定 > 遊戲 中設定。",
-    "error_g3mtool_unavailable": "G3MTool 不可用。模組補丁需要 G3MTool。"
+    "creation_failed": "建立捷徑失敗：{error}"
   },
   "modding_tools": {
     "title": "模組工具",

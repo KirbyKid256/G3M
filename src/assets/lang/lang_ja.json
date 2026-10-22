@@ -420,9 +420,7 @@
   },
   "files": {
     "data_file": "DATA - ファイル",
-    "dependency_only": "インストールしない",
     "game_folder_target": "ゲームフォルダー",
-    "data_folder_target": "ゲームデータフォルダー",
     "custom_target": "カスタムフォルダー",
     "custom_target_folder": "カスタムフォルダー:",
     "icon_label": "アイコン",
@@ -434,7 +432,6 @@
   "tabs": {
     "demo": "デモ",
     "main_menu": "メインメニュー",
-    "menu_root": "メニュー/ルート",
     "undertale": "アンダーテール",
     "undertaleyellow": "UNDERTALE Yellow",
     "pizzatower": "Pizza Tower",
@@ -621,21 +618,17 @@
     "clear_g3mtool_cache_confirm_title": "G3MTool キャッシュのクリア",
     "clear_g3mtool_cache_confirm_text": "G3MTool キャッシュをクリアしますか?キャッシュが再構築されるまで、パッチ適用とマージは少し遅くなる可能性があります。これは、スペースを解放するため、またはパッチ適用/マージが著しく悪化した場合にのみ実行してください。",
     "select_target_folder": "対象フォルダーの選択",
-    "finish_creating_mod": "MODの作成を完了する",
     "mod_created_successfully": "MODが正常に作成されました",
     "data_file": "DATAファイル",
     "no_patch_files_available": "追加できるパッチファイルがありません",
-    "enter_relative_path": "例: スプライト/BGM",
     "path_outside_game_folder": "選択した場所は、対象の種類に応じてゲームフォルダーまたはゲームのデータフォルダー内にある必要があります。",
     "conflicts": {
       "title": "Mod パッチの競合が検出されました",
-      "total_conflicts": "検出された競合の合計: {count}",
       "summary": "競合: {conflicts} | 自動解決: {auto_resolved}",
       "open_report": "レポートを開く"
     },
     "patching_warning": {
       "title": "パッチ適用の警告",
-      "operations_review": "一部のMod操作には確認が必要です。続行すると一覧の変更を適用し、利用できない操作はスキップされます。",
       "relation_review": "有効なModの順序が依存関係の推奨と一致しません。確認済みの順序を適用するか、変更せずに起動するか、キャンセルしてください。",
       "apply_arrangement": "推奨を適用",
       "launch_without_changes": "変更せずに起動",
@@ -666,7 +659,6 @@
     "undertale_not_found": "UNDERTALEが見つかりませんでした。",
     "undertaleyellow_not_found": "UNDERTALE イエローが見つかりませんでした。",
     "pizzatower_not_found": "PizzaTower.exe ファイルが見つかりません。",
-    "enter_file_group_key": "このファイル グループのキー/名前を入力してください:",
     "file_group_name": "ファイルグループ名",
     "full_install_game": "{game_name}を最初からインストールします",
     "game_path_instruction": "{message}\n\nゲームフォルダを指定してください。 macOS では、.app ファイル (DELTARUNE.app、UNDERTALE.app など) を選択します。",
@@ -687,8 +679,6 @@
     "show_unlisted_info_files": "未指定のファイルを表示 ({count})",
     "macos_install_unavailable": "macOS ではゲームファイルのインストールは利用できません。\nSteam 経由でデモをインストールすることをおすすめします。",
     "mod_name_empty": "Mod 名を空にすることはできません。",
-    "empty_data_file_section": "「{tab_name}」タブの空の DATA - ファイル セクションを入力するか削除してください。",
-    "empty_extra_file_section": "「{tab_name}」タブの空の追加ファイル #{number} セクションを入力するか削除してください。",
     "mod_name_too_long": "Mod 名は 50 文字を超えることはできません。",
     "mod_version_too_long": "Mod バージョンは 20 文字を超えることはできません。",
     "mod_homepage_too_long": "ホームページは 200 文字を超えることはできません。",
@@ -705,12 +695,9 @@
     "select_undertale_folder": "UNDERTALEゲームフォルダを選択",
     "select_undertaleyellow_folder": "UNDERTALE Yellow ゲームフォルダーを選択します",
     "select_pizzatower_folder": "ピザタワーフォルダを選択",
-    "tab_extra_file_not_found": "「{tab_name}」タブに追加のファイルが見つかりません: {path}",
-    "tab_file_not_found": "「{tab_name}」タブにファイルが見つかりません: {path}",
     "unavailable": "利用不可",
     "unsaved_changes_lost": "保存されていない変更はすべて失われます。続行しますか?",
     "update_permission_error_details": "権限不足またはファイルロックのため、G3Mファイルを置き換えられませんでした。\n\n次を試してください:\n1. G3Mを閉じ、インストーラーを管理者として実行する。\n2. ウイルス対策ソフト/SmartScreen を一時的に無効にするか、インストーラーを許可する。\n3. 別のフォルダー（例: デスクトップ）にインストールして、そこから実行する。\n4. または、更新を手動でダウンロードしてアプリケーションを置き換える。",
-    "validation_error": "検証エラー",
     "want_download_install_now": "今すぐダウンロードしてインストールしますか?<br>",
     "whats_new": "新機能:",
     "select_background_music": "BGM 用のオーディオ ファイルを選択する",
@@ -991,8 +978,7 @@
     "no_description": "説明なし",
     "not_specified": "指定なし",
     "local_mod": "ローカルMOD",
-    "unknown": "不明",
-    "multiple_authors": "複数の著者"
+    "unknown": "不明"
   },
   "file_descriptions": {
     "font_files": "フォントファイル",
@@ -1248,10 +1234,7 @@
     "direct": "直接起動",
     "select_folder": "ショートカットを保存するフォルダーを選択してください",
     "created": "作成されたショートカット:\n{path}",
-    "creation_failed": "ショートカットの作成に失敗しました: {error}",
-    "too_many_mods": "ショートカットの各ステップで使用できる MOD は 1 つだけです。MOD を別々のステップに配置するか、なし（バニラ）を選択してください。",
-    "error_no_game_path": "{game} のゲーム パスが設定されていません。 「設定」>「ゲーム」で設定します。",
-    "error_g3mtool_unavailable": "G3Mツールは利用できません。 Mod パッチを適用するには G3MTool が必要です。"
+    "creation_failed": "ショートカットの作成に失敗しました: {error}"
   },
   "modding_tools": {
     "title": "改造ツール",

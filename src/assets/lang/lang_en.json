@@ -420,9 +420,7 @@
   },
   "files": {
     "data_file": "DATA - File",
-    "dependency_only": "Do not install",
     "game_folder_target": "Game folder",
-    "data_folder_target": "Game data folder",
     "custom_target": "Custom folder",
     "custom_target_folder": "Custom folder:",
     "icon_label": "Icon",
@@ -434,7 +432,6 @@
   "tabs": {
     "demo": "Demo",
     "main_menu": "Main Menu",
-    "menu_root": "Menu/Root",
     "undertale": "Undertale",
     "undertaleyellow": "UNDERTALE Yellow",
     "pizzatower": "Pizza Tower",
@@ -621,21 +618,17 @@
     "clear_g3mtool_cache_confirm_title": "Clear G3MTool Cache",
     "clear_g3mtool_cache_confirm_text": "Clear the G3MTool cache? Patching and merging may be a little slower until the cache is rebuilt. Do this only to free space or if patching/merging got noticeably worse.",
     "select_target_folder": "Select Target Folder",
-    "finish_creating_mod": "Finish Creating Mod",
     "mod_created_successfully": "Mod created successfully",
     "data_file": "DATA File",
     "no_patch_files_available": "No patch files available to add",
-    "enter_relative_path": "e.g., sprites/bgs",
     "path_outside_game_folder": "Selected location must be within the game folder or game data folder for the selected target type.",
     "conflicts": {
       "title": "Mod Patching Conflicts Detected",
-      "total_conflicts": "Total conflicts detected: {count}",
       "summary": "Conflicts: {conflicts} | Auto-resolved: {auto_resolved}",
       "open_report": "Open Report"
     },
     "patching_warning": {
       "title": "Patching Warning",
-      "operations_review": "Some mod operations need your confirmation. Continuing applies the listed changes; unavailable operations will be skipped.",
       "relation_review": "The active mod order does not match a dependency recommendation. Apply the checked arrangement, launch without changing it, or cancel.",
       "apply_arrangement": "Apply recommendation",
       "launch_without_changes": "Launch without changes",
@@ -666,7 +659,6 @@
     "undertale_not_found": "Could not find UNDERTALE.",
     "undertaleyellow_not_found": "Could not find UNDERTALE Yellow.",
     "pizzatower_not_found": "PizzaTower.exe file not found.",
-    "enter_file_group_key": "Enter key/name for this file group:",
     "file_group_name": "File group name",
     "full_install_game": "Install {game_name} from scratch",
     "game_path_instruction": "{message}\n\nPlease specify the game folder. On macOS, select the .app file (e.g., DELTARUNE.app, UNDERTALE.app).",
@@ -687,8 +679,6 @@
     "show_unlisted_info_files": "Show unlisted files ({count})",
     "macos_install_unavailable": "Game file installation is not available on macOS.\nTry installing the DEMO via Steam.",
     "mod_name_empty": "Mod name cannot be empty.",
-    "empty_data_file_section": "Fill in or remove the empty DATA file section in the '{tab_name}' tab.",
-    "empty_extra_file_section": "Fill in or remove the empty Extra files #{number} section in the '{tab_name}' tab.",
     "mod_name_too_long": "Mod name cannot be longer than 50 characters.",
     "mod_version_too_long": "Mod version cannot be longer than 20 characters.",
     "mod_homepage_too_long": "Homepage cannot be longer than 200 characters.",
@@ -705,12 +695,9 @@
     "select_undertale_folder": "Select UNDERTALE game folder",
     "select_undertaleyellow_folder": "Select UNDERTALE Yellow game folder",
     "select_pizzatower_folder": "Select Pizza Tower folder",
-    "tab_extra_file_not_found": "Extra file not found in '{tab_name}' tab: {path}",
-    "tab_file_not_found": "File not found in '{tab_name}' tab: {path}",
     "unavailable": "Unavailable",
     "unsaved_changes_lost": "All unsaved changes will be lost. Continue?",
     "update_permission_error_details": "Failed to replace G3M files due to insufficient permissions or file locks.\n\nTry the following:\n1. Close the G3M and run the installer as Administrator.\n2. Temporarily disable antivirus/SmartScreen or allow the installer.\n3. Install to a different folder (e.g., Desktop) and run from there.\n4. Or download the update manually and replace the application.",
-    "validation_error": "Validation Error",
     "want_download_install_now": "Want to download and install it now?<br>",
     "whats_new": "What's new:",
     "select_background_music": "Select audio file for background music",
@@ -991,8 +978,7 @@
     "no_description": "No description",
     "not_specified": "Not specified",
     "local_mod": "Local mod",
-    "unknown": "Unknown",
-    "multiple_authors": "Multiple Authors"
+    "unknown": "Unknown"
   },
   "file_descriptions": {
     "font_files": "Font Files",
@@ -1256,10 +1242,7 @@
     "direct": "Direct",
     "select_folder": "Select folder to save shortcut",
     "created": "Shortcut created:\n{path}",
-    "creation_failed": "Failed to create shortcut: {error}",
-    "too_many_mods": "Each shortcut step supports only one mod. Put mods in separate steps or select none (vanilla).",
-    "error_no_game_path": "Game path for {game} is not set. Set it in Settings > Game.",
-    "error_g3mtool_unavailable": "G3MTool is not available. Mod patching requires G3MTool to be present."
+    "creation_failed": "Failed to create shortcut: {error}"
   },
   "modding_tools": {
     "title": "Modding Tools",
