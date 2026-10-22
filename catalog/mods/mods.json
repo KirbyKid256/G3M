@@ -16,7 +16,7 @@
       "id": "gb_wip_102106",
       "name": "[UPDATE] Performance Mod | Chapter 5",
       "game": "deltarune",
-      "game_version": "Ch5 v0.0.253",
+      "game_version": "v0.0.253",
       "added": "2026-10-20"
     },
     {
@@ -73,7 +73,7 @@
       "id": "gb_mod_715360",
       "name": "RNG Increase",
       "game": "deltarune",
-      "game_version": "Ch1 v1.43, Ch2 v1.52, Ch3 v0.0.105, Ch4 v0.0.110, Ch5 v0.0.253",
+      "game_version": "v0.0.253",
       "added": "2026-10-20"
     },
     {
@@ -243,7 +243,7 @@
       "id": "gb_mod_697039",
       "name": "Deltarune Missing OST Plus",
       "game": "deltarune",
-      "game_version": "Ch5 v0.0.253",
+      "game_version": "v0.0.253",
       "added": "2026-10-20"
     },
     {
@@ -256,7 +256,7 @@
       "id": "gb_mod_701732",
       "name": "Shadow Soul (Clone)",
       "game": "deltarune",
-      "game_version": "Ch5 v0.0.253",
+      "game_version": "v0.0.253",
       "added": "2026-10-20"
     },
     {
@@ -312,7 +312,7 @@
       "id": "gb_mod_690141",
       "name": "Alternate Cuter Pink Cafe Scene",
       "game": "deltarune",
-      "game_version": "Ch5 v0.0.253",
+      "game_version": "v0.0.253",
       "added": "2026-10-20"
     },
     {
@@ -345,7 +345,7 @@
       "id": "gb_mod_700876",
       "name": "Orange Soul Mode (Always Move)",
       "game": "deltarune",
-      "game_version": "Ch5 v0.0.253",
+      "game_version": "v0.0.253",
       "added": "2026-10-20"
     },
     {
@@ -413,7 +413,7 @@
       "id": "gb_mod_610534",
       "name": "Serif0S' No-hat Ralsei Face Resprites Mod",
       "game": "deltarune",
-      "game_version": "Ch5 v0.0.253",
+      "game_version": "v0.0.253",
       "added": "2026-10-20"
     },
     {
@@ -458,6 +458,13 @@
       "name": "Relsay Mod",
       "game": "deltarune",
       "added": "2026-10-20"
+    },
+    {
+      "id": "gb_mod_730367",
+      "name": "Dojo+",
+      "game": "deltarune",
+      "game_version": "v0.0.253",
+      "added": "2026-10-22"
     },
     {
       "id": "gb_mod_661496",
