@@ -1,3 +1,11 @@
+<details>
+<summary><h3>Version 3.4.4 — Unreleased</h3></summary>
+
+- Fixed G3M not starting when a saved mod version in the Library is a damaged archive. G3M now skips that file and reports it by name.
+- Messages about damaged archives, game launch, shortcuts, exports, and imports now name the affected file, folder, or value.
+
+</details>
+
 ### Version 3.4.3 — 21.10.26
 
 - Added the **FB-Addon** tag for FRICKBEARS3 content, which converted addons receive automatically. It and **CYOP/AFOM** can be chosen in Mod Editor and the web editor only while FRICKBEARS3 or Pizza Tower is selected.
