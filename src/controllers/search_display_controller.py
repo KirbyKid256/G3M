@@ -4,6 +4,7 @@ import contextlib
 import logging
 from typing import cast
 
+from PyQt6 import sip
 from PyQt6.QtCore import QEvent, QMetaObject, QObject, Qt, QThread, QTimer, pyqtSignal
 from PyQt6.QtWidgets import QApplication, QGridLayout, QInputDialog
 
@@ -906,6 +907,10 @@ class SearchDisplayController(QObject):
         self._update_display_debounce.call(self._do_update_display)
 
     def _do_update_display(self):
+        layout = getattr(self.app, "mod_list_layout", None)
+        with contextlib.suppress(TypeError):  # not a Qt object, e.g. a test double
+            if layout is not None and sip.isdeleted(layout):
+                return  # the window is closing; a queued refresh has nothing left to draw on
         if self._update_display_in_progress:
             self._pending_display_update = True
             return
