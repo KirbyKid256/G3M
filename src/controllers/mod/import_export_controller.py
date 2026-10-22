@@ -736,7 +736,7 @@ class ModImportExportController:
                 )
                 return False
             if Path(export_path).resolve().is_relative_to(Path(mod_dir).resolve()):
-                logger.error("[EXPORT] Export path is inside the source mod folder")
+                logger.error(f"[EXPORT] Export path {export_path!r} is inside the source mod folder {mod_dir!r}")
                 return False
             from utils.mod.version_package import export_mod_archive
 

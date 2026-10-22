@@ -857,7 +857,7 @@ class ModManager(QObject):
                     continue
                 entry = metadata.setdefault(mod_id, {})
                 if not isinstance(entry, dict):
-                    logger.warning("add_playtime_hours: invalid mod metadata entry")
+                    logger.warning(f"add_playtime_hours: metadata entry for {mod_id!r} is not an object, skipping it")
                     continue
                 current = self._normalize_playtime_hours(entry.get("playtime_hours", 0))
                 entry["playtime_hours"] = round(current + hours, 4)

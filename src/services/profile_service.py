@@ -336,7 +336,7 @@ class ProfileService(QObject):
         if not profile_dir.exists():
             return False
         if Path(target_path).resolve().is_relative_to(profile_dir.resolve()):
-            logger.error("Profile export path is inside the source profile folder")
+            logger.error(f"Profile export path {target_path!r} is inside the source profile folder {str(profile_dir)!r}")
             return False
         if name == self._active_name:
             self.save_active()

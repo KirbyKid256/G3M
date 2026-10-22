@@ -353,7 +353,7 @@ class DownloadsManager(QObject):
             self._emit_badge()
             return
         if record.target_kind == TargetKind.MOD and not mods_dir:
-            logger.warning("DownloadsManager: mods_dir not set, cannot run Use")
+            logger.warning(f"DownloadsManager: mods_dir is not set, cannot run Use for {record.display_name or record.id}")
             record.use_status = UseStatus.FAILED
             record.error_message = "Application context not ready"
             self._store.update(record)

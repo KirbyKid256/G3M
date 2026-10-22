@@ -183,7 +183,7 @@ class UrlInstallThread(BaseInstallWorker):
     def _install_g3m_mod_from_path(self, content_path: str) -> str | None:
         mod_config_path = find_mod_config(content_path)
         if not mod_config_path:
-            logger.error("mod_config.json not found in G3M mod archive")
+            logger.error(f"mod_config.json not found in the G3M mod archive content at {content_path!r}")
             return None
         self._settle_game(mod_config_path)
         if not resolve_package_versions(

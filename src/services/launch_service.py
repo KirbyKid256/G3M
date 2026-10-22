@@ -546,7 +546,7 @@ class GameLauncher(QObject):
             ):
                 if self._pending_dependency_launch is not None:
                     return
-                logger.error("Failed to start multi-mod patching")
+                logger.error(f"Failed to start patching for {len(selections)} selected mod group(s); see earlier log lines for the reason")
                 self.app_state.progress_bar_visible = False
                 self.app_state.is_patching = False
                 self._handle_launch_failure()
