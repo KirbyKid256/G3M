@@ -1635,3 +1635,20 @@ class TestTabBuilders:
                 _close_widget(qapp, dialog)
                 _close_widget(qapp, getattr(window, "_tooltip_widget", None))
                 _close_app_window(qapp, window)
+
+
+def test_hiding_the_tooltip_after_its_widget_was_deleted_does_not_raise(qapp):
+    from types import SimpleNamespace
+
+    from PyQt6 import sip
+
+    from app.window import AppWindow
+    from ui.widgets.shared.custom_controls import AnimatedToolTip
+
+    stub = SimpleNamespace(_tooltip_widget=AnimatedToolTip("hint", None), app_state=None)
+    stub._live_tooltip_widget = lambda: AppWindow._live_tooltip_widget(stub)
+    sip.delete(stub._tooltip_widget)
+
+    AppWindow._hide_custom_tooltip(stub)
+
+    assert stub._tooltip_widget is None

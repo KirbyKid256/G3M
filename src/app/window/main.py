@@ -909,7 +909,7 @@ class AppWindow(QWidget):
         obj, ev = cast(Any, a0), cast(Any, a1)
         ev_type = ev.type()
         tooltip_timer = getattr(self, "_tooltip_timer", None)
-        tooltip_widget = getattr(self, "_tooltip_widget", None)
+        tooltip_widget = self._live_tooltip_widget()
         last_tooltip_target: Any = getattr(self, "_last_tooltip_target", None)
         if ev_type == QEvent.Type.MouseButtonDblClick:
             chapter_id = getattr(obj, "_chapter_id", None)
@@ -1044,9 +1044,7 @@ class AppWindow(QWidget):
         if not last_tooltip_target or not last_tooltip_text:
             return
 
-        tooltip_widget = cast(
-            AnimatedToolTip | None, getattr(self, "_tooltip_widget", None)
-        )
+        tooltip_widget = self._live_tooltip_widget()
         if tooltip_widget is None:
             tooltip_widget = AnimatedToolTip(last_tooltip_text, None)
             tooltip_widget._preserve_fade_effect = True
@@ -1106,8 +1104,15 @@ class AppWindow(QWidget):
         else:
             UIAnimator.fade_in(tooltip_widget, 150, self.app_state)
 
+    def _live_tooltip_widget(self) -> AnimatedToolTip | None:
+        widget = cast(AnimatedToolTip | None, getattr(self, "_tooltip_widget", None))
+        if widget is not None and sip.isdeleted(widget):
+            self._tooltip_widget = None
+            return None
+        return widget
+
     def _hide_custom_tooltip(self):
-        tooltip_widget = getattr(self, "_tooltip_widget", None)
+        tooltip_widget = self._live_tooltip_widget()
         if (
             tooltip_widget
             and tooltip_widget.isVisible()
