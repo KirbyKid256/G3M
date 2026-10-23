@@ -250,6 +250,7 @@ class ModOperationJournal:
     def retire(self) -> None:
         """Keep external changes and mark this recovery session as resolved."""
         self._write_manifest("retired")
+        shutil.rmtree(self.backups, ignore_errors=True)
 
     def discard(self) -> None:
         """Forget a successfully committed permanent operation and its backups."""
