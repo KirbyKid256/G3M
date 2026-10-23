@@ -879,7 +879,7 @@
     "demo_installation_complete": "Demo版完整安裝完成。",
     "downloading_version": "正在下載v{version}...",
     "files_restored": "檔案已成功恢復。",
-    "restore_skipped_external_changes": "G3M 套用模組後遊戲檔案發生變更，因此未進行還原。復原備份已封存。",
+    "restore_skipped_external_changes": "G3M 套用模組後遊戲檔案發生變更，因此未進行還原，檔案保持原樣。",
     "game_closed_restoring_files": "遊戲已關閉。正在恢復檔案...",
     "g3mtool_cache_cleared": "G3MTool 快取已清除。",
     "game_files_install_complete": "遊戲檔案已安裝。",

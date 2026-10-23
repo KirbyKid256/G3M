@@ -879,7 +879,7 @@
     "demo_installation_complete": "Full DEMO installation complete.",
     "downloading_version": "Downloading v{version}...",
     "files_restored": "Files restored successfully.",
-    "restore_skipped_external_changes": "Game files changed after G3M applied the mod, so they were not restored. The recovery backup was archived.",
+    "restore_skipped_external_changes": "Game files changed after G3M applied the mod, so they were not restored and were left as they are.",
     "game_closed_restoring_files": "Game closed. Restoring files...",
     "g3mtool_cache_cleared": "G3MTool cache cleared.",
     "game_files_install_complete": "Game files installed.",

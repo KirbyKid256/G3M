@@ -879,7 +879,7 @@
     "demo_installation_complete": "DEMO 전체 설치 완료.",
     "downloading_version": "v{version} 다운로드 중...",
     "files_restored": "파일이 성공적으로 복원되었습니다.",
-    "restore_skipped_external_changes": "G3M이 모드를 적용한 후 게임 파일이 변경되어 복원하지 않았습니다. 복구 백업은 보관되었습니다.",
+    "restore_skipped_external_changes": "G3M이 모드를 적용한 후 게임 파일이 변경되어 복원하지 않고 그대로 두었습니다.",
     "game_closed_restoring_files": "게임 종료됨. 파일 복원 중...",
     "g3mtool_cache_cleared": "G3MTool 캐시를 지웠습니다.",
     "game_files_install_complete": "게임 파일을 설치했습니다.",

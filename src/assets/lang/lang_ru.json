@@ -879,7 +879,7 @@
     "demo_installation_complete": "Полная установка ДЕМОВЕРСИИ завершена.",
     "downloading_version": "Скачивание v{version}...",
     "files_restored": "Файлы восстановлены успешно.",
-    "restore_skipped_external_changes": "Файлы игры изменились после применения мода G3M, поэтому восстановление не выполнялось. Резервная копия сохранена в архиве восстановления.",
+    "restore_skipped_external_changes": "Файлы игры изменились после применения мода G3M, поэтому они не восстанавливались и остались как есть.",
     "game_closed_restoring_files": "Игра закрыта. Восстановление файлов...",
     "g3mtool_cache_cleared": "Кеш G3MTool очищен.",
     "game_files_install_complete": "Файлы игры установлены.",

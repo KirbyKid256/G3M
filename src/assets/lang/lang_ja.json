@@ -879,7 +879,7 @@
     "demo_installation_complete": "完全なデモのインストールが完了しました。",
     "downloading_version": "v{version} をダウンロード中...",
     "files_restored": "ファイルは正常に復元されました。",
-    "restore_skipped_external_changes": "G3M が Mod を適用した後にゲームファイルが変更されたため、復元しませんでした。復旧用バックアップはアーカイブされました。",
+    "restore_skipped_external_changes": "G3M が Mod を適用した後にゲームファイルが変更されたため、復元せず、そのままにしました。",
     "game_closed_restoring_files": "ゲームは終了しました。ファイルを復元中...",
     "g3mtool_cache_cleared": "G3MTool キャッシュがクリアされました。",
     "game_files_install_complete": "ゲームファイルがインストールされています。",
