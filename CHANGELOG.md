@@ -3,6 +3,7 @@
 
 - Fixed G3M not starting when a saved mod version in the Library is a damaged archive. G3M now skips that file and reports it by name.
 - Messages about damaged archives, game launch, shortcuts, exports, and imports now name the affected file, folder, or value.
+- Declining **Force restore** after an interrupted game session now keeps your files as they are, removes the leftover backup, and no longer blocks the next launch.
 
 </details>
 
