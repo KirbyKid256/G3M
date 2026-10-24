@@ -335,6 +335,10 @@ class DownloadsManager(QObject):
         record = self._store.find(record_id)
         if not record or not record.file_exists or not record.file_path:
             return
+        if any(other.use_status == UseStatus.USING and other.id in self._workers for other in self._store.records):
+            # Installs write into the same mods folder, so they run one at a time.
+            QTimer.singleShot(500, lambda: self._start_use(record_id))
+            return
         mods_dir = self._mod_target_dir(record)
         if record.target_kind == TargetKind.PLUGIN and not self._plugin_install_service:
             logger.warning("DownloadsManager: plugin_install_service not set")

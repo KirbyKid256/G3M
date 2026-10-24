@@ -227,3 +227,22 @@ def test_gamebanana_update_uses_its_snapshotted_mods_directory(tmp_path, monkeyp
         }
     }
     assert not (active_profile / "mods_data.json").exists()
+
+
+def test_installs_run_one_at_a_time(tmp_path, monkeypatch):
+    manager = DownloadsManager(str(tmp_path), lambda: {})
+    manager.set_app_context(mods_dir=str(tmp_path))
+    archive = tmp_path / "mod.zip"
+    archive.write_bytes(b"x")
+    running = DownloadRecord(id="running", target_kind=TargetKind.MOD, use_status=UseStatus.USING, file_path=str(archive), file_exists=True)
+    waiting = DownloadRecord(id="waiting", target_kind=TargetKind.MOD, file_path=str(archive), file_exists=True)
+    manager.store.add(running)
+    manager.store.add(waiting)
+    manager._workers["running"] = Mock()
+    retries = []
+    monkeypatch.setattr("services.downloads.manager.QTimer.singleShot", lambda ms, callback: retries.append((ms, callback)))
+
+    manager._start_use("waiting")
+
+    assert waiting.use_status != UseStatus.USING
+    assert len(retries) == 1
