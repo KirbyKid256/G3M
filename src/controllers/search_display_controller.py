@@ -860,7 +860,7 @@ class SearchDisplayController(QObject):
             "game": selected_game,
             "search_text": self.app_state.search_text,
             "hide_banned": True,
-            "hide_local": True,
+            "only_gamebanana": True,
             "show_nsfw": show_nsfw,
             "only_g3m": _bound_checkbox_is_checked(self.app, "tag_g3m"),
             "status_filter": ["approved", "pending"],
@@ -996,13 +996,7 @@ class SearchDisplayController(QObject):
                 self._remove_centered_loading_indicator()
 
             def get_mod_cache_key(mod):
-                key = get_mod_id(mod)
-                if key and key.startswith("gb_"):
-                    return key
-                if key:
-                    return f"local_{key}"
-                mod_name = getattr(mod, "name", "unknown")
-                return f"name_{mod_name}"
+                return get_mod_id(mod) or f"name_{getattr(mod, 'name', 'unknown')}"
 
             current_page_cache_keys = {
                 get_mod_cache_key(mod) for mod in current_page_mods if mod is not None

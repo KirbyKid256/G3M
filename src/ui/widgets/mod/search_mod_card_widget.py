@@ -25,7 +25,7 @@ from ui.common.styling import (
     get_theme_color,
     load_mod_icon_universal,
 )
-from utils.mod.utils import get_mod_id
+from utils.mod.utils import get_mod_id, is_gamebanana_id
 from utils.path_utils import colored_icon
 
 from .mod_card_widget import ModCardWidget
@@ -272,7 +272,7 @@ class SearchModCardWidget(ModCardWidget):
 
     def _get_description_text(self):
         key = get_mod_id(self.mod_data)
-        if key and key.startswith("gb_"):
+        if is_gamebanana_id(key):
             return ""
         description = getattr(self.mod_data, "description", "") or ""
         if len(description) > 180:

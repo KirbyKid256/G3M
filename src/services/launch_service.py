@@ -1051,7 +1051,7 @@ class GameLauncher(QObject):
             mod_list = mods if isinstance(mods, list) else [mods]
             for mod in mod_list:
                 mod_id = get_mod_id(mod)
-                if not mod_id or mod_id in seen or mod_id.startswith("local_"):
+                if not mod_id or mod_id in seen:
                     continue
                 seen.add(mod_id)
                 result.append(mod_id)

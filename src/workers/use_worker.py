@@ -17,6 +17,7 @@ from ui.dialogs.unknown_game_dialog import (
     WorkerGameResolver,
 )
 from ui.utils.thread_lifetime import ManagedQThread
+from utils.mod.utils import is_gamebanana_id
 from utils.mod.version_package import resolve_package_versions
 from utils.path_utils import get_user_themes_dir
 from utils.process_utils import format_filesystem_error, format_plugin_error
@@ -336,7 +337,7 @@ class UseWorker(ManagedQThread):
             folder_name = sanitize_filename(mod_name)
             target_mod_dir = ""
             mod_id = config_data.get("id")
-            if isinstance(mod_id, str) and mod_id.startswith(("gb_mod_", "gb_wip_")):
+            if is_gamebanana_id(mod_id):
                 for entry in os.listdir(self._mods_dir):
                     if entry.startswith("."):
                         continue

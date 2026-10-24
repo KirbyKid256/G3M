@@ -45,6 +45,7 @@ from ui.common.dialog_theme import (
 )
 from ui.utils.thread_lifetime import ManagedQThread, retire_qthread
 from ui.utils.ui_utils import format_size
+from utils.mod.utils import is_gamebanana_id
 from utils.mod.version_utils import apply_version_zip as _apply_version_zip
 from utils.mod.version_utils import (
     create_version_zip,
@@ -244,11 +245,7 @@ class ModVersionsDialog(DynamicDialog):
             if isinstance(self._mod_data, dict)
             else getattr(self._mod_data, "id", None)
         )
-        return bool(
-            key
-            and isinstance(key, str)
-            and (key.startswith("gb_mod_") or key.startswith("gb_wip_"))
-        )
+        return is_gamebanana_id(key)
 
     def _build_ui(self):
         main = QVBoxLayout(self)

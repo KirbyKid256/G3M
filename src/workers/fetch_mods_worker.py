@@ -1,8 +1,6 @@
 """Worker thread for fetching mod lists from remote sources."""
 
-import json
 import logging
-import os
 from types import SimpleNamespace
 from typing import Any
 
@@ -14,7 +12,7 @@ from models.mod_models import AnyModInfo, BrowserModInfo
 from services.localization_service import tr
 from ui.utils.thread_lifetime import ManagedQThread
 from ui.utils.thread_lifetime import safe_emit as _safe_emit
-from utils.mod.utils import get_mod_id
+from utils.mod.utils import get_mod_id, is_gamebanana_id
 
 logger = logging.getLogger(__name__)
 
@@ -201,12 +199,7 @@ class FetchModsThread(ManagedQThread):
             all_mods_filtered = []
             for mod in all_mods:
                 mod_id = get_mod_id(mod)
-                is_local_mod_id = (
-                    mod_id and isinstance(mod_id, str) and mod_id.startswith("local_")
-                )
-                if is_local_mod_id:
-                    continue
-                is_gamebanana_mod = mod_id and mod_id.startswith("gb_")
+                is_gamebanana_mod = is_gamebanana_id(mod_id)
                 if is_gamebanana_mod and (
                     mod_id in existing_mods_with_files
                     or mod_id in installed_mods_with_files
@@ -261,7 +254,6 @@ class FetchModsThread(ManagedQThread):
                     app_state.all_mods_updated,
                     all_mods_filtered,
                 )
-            self._update_remote_exists_flags(all_mods)
             logger.info("FetchModsThread: Mod fetch completed successfully")
             _safe_emit(self.__class__.__name__, self.result, True)
         except Exception as e:
@@ -276,54 +268,9 @@ class FetchModsThread(ManagedQThread):
         app_state = getattr(self.main_window, "app_state", None)
         if app_state and hasattr(app_state, "all_mods"):
             for mod in app_state.all_mods:
-                mod_id = get_mod_id(mod)
-                is_local_mod_id = (
-                    mod_id and isinstance(mod_id, str) and mod_id.startswith("local_")
-                )
-                if is_local_mod_id:
+                if not is_gamebanana_id(get_mod_id(mod)):
                     local_mods.append(mod)
             logger.debug(
                 f"_get_local_mods: Found {len(local_mods)} local mods in app_state"
             )
         return local_mods
-
-    def _update_remote_exists_flags(self, all_mods: list[BrowserModInfo]):
-        app_state = getattr(self.main_window, "app_state", None)
-        mod_service = getattr(self.main_window, "mod_service", None)
-        settings_service = getattr(self.main_window, "settings_service", None)
-        if (
-            not app_state
-            or not hasattr(app_state, "mods_dir")
-            or (not os.path.exists(app_state.mods_dir))
-        ):
-            return
-        if not mod_service:
-            return
-        try:
-            for folder_name in os.listdir(app_state.mods_dir):
-                folder_path = os.path.join(app_state.mods_dir, folder_name)
-                if folder_name.startswith(".") or not os.path.isdir(folder_path):
-                    continue
-                config_path = os.path.join(folder_path, "mod_config.json")
-                if not os.path.exists(config_path):
-                    continue
-                try:
-                    if settings_service:
-                        config_data = settings_service.read_json(config_path)
-                    else:
-                        with open(config_path, encoding="utf-8") as f:
-                            config_data = json.load(f)
-                    if not config_data:
-                        continue
-                    mod_id = config_data.get("id")
-                    is_local_mod_id = (
-                        mod_id
-                        and isinstance(mod_id, str)
-                        and mod_id.startswith("local_")
-                    )
-                    if not mod_id or is_local_mod_id:
-                        continue
-                except (OSError, json.JSONDecodeError):
-                    continue
-        except Exception as e:
-            logger.warning(f"Failed to update remote exists flags in metadata: {e}")

@@ -18,7 +18,6 @@ from config.config import (
     UI_COLORS,
 )
 from config.settings_schema import get_theme_color_key
-from utils.mod.utils import get_mod_id
 from utils.path_utils import colored_icon
 
 logger = logging.getLogger(__name__)
@@ -1164,29 +1163,12 @@ def load_mod_icon_universal(
             if os.path.isabs(icon_source):
                 local_icon_to_load = icon_source
             else:
-                key = get_mod_id(mod_data)
-                is_local_key = key and isinstance(key, str) and key.startswith("local_")
-                if is_local_key:
-                    mod_folder_path = None
-                    try:
-                        if hasattr(mod_data, "folder_path"):
-                            mod_folder_path = mod_data.folder_path
-                    except Exception as e:
-                        logger.debug(
-                            f"load_mod_icon_universal: Error getting folder_path from mod_data: {e}"
-                        )
-                    if mod_folder_path and os.path.isdir(mod_folder_path):
-                        resolved_path = os.path.normpath(
-                            os.path.join(mod_folder_path, icon_source)
-                        )
-                        if os.path.exists(resolved_path):
-                            local_icon_to_load = resolved_path
-                        else:
-                            local_icon_to_load = icon_source
-                    else:
-                        local_icon_to_load = icon_source
-                else:
-                    local_icon_to_load = icon_source
+                local_icon_to_load = icon_source
+                mod_folder_path = getattr(mod_data, "folder_path", None)
+                if mod_folder_path and os.path.isdir(mod_folder_path):
+                    resolved_path = os.path.normpath(os.path.join(mod_folder_path, icon_source))
+                    if os.path.exists(resolved_path):
+                        local_icon_to_load = resolved_path
         elif icon_path:
             local_icon_to_load = icon_path
         if local_icon_to_load and os.path.exists(local_icon_to_load):

@@ -30,7 +30,7 @@ from ui.common.styling import (
 )
 from ui.utils.ui_utils import UIAnimator
 from utils.mod.config import MOD_CONFIG_VERSION
-from utils.mod.utils import get_mod_id
+from utils.mod.utils import get_mod_id, is_gamebanana_id
 from utils.path_utils import colored_icon, resource_path
 
 from .base_mod_widget import BaseModWidget
@@ -341,10 +341,7 @@ class InstalledModWidget(BaseModWidget):
             return broken(str(error))
 
     def _is_gamebanana_linked(self) -> bool:
-        key = get_mod_id(self.mod_data)
-        if not key:
-            return False
-        return isinstance(key, str) and key.startswith("gb_")
+        return is_gamebanana_id(get_mod_id(self.mod_data))
 
     def _update_button_from_status(self):
         if not self.use_button:
