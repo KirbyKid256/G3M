@@ -4,6 +4,10 @@
 - Fixed G3M not starting when a saved mod version in the Library is a damaged archive. G3M now skips that file and reports it by name.
 - Messages about damaged archives, game launch, shortcuts, exports, and imports now name the affected file, folder, or value.
 - Declining **Force restore** after an interrupted game session now keeps your files as they are, removes the leftover backup, and no longer blocks the next launch.
+- Added a **+** button beside the game list in Manual installation, so a missing custom game can be added on the spot.
+- A custom game can now have its own **Game ID**, also changeable when editing it. The custom game window is wider.
+- Progress bars across G3M now fill smoothly, unless animations are disabled.
+- Fixed an installed local mod showing up in Mods Browser as a second card next to the same mod from GameBanana.
 
 </details>
 
