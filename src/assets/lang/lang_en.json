@@ -1008,6 +1008,8 @@
     "clear_downloads": "Clear downloads",
     "open_folder": "Open folder",
     "external_download": "External download",
+    "remote_install_title": "GameBanana Remote Install",
+    "remote_install_pair": "Link this G3M to your GameBanana Remote Install? Mods you send from GameBanana will download here automatically.",
     "empty_list": "No downloads yet.",
     "status_downloading": "Downloading {progress}%",
     "status_installing": "Installing…",

@@ -1008,6 +1008,8 @@
     "clear_downloads": "清除下載",
     "open_folder": "開啟資料夾",
     "external_download": "外部下載",
+    "remote_install_title": "GameBanana 遠端安裝",
+    "remote_install_pair": "要將此 G3M 連結到你的 GameBanana 遠端安裝嗎？你在 GameBanana 上傳送的模組將自動下載到這裡。",
     "empty_list": "目前沒有下載。",
     "status_downloading": "下載中 {progress}%",
     "status_installing": "安裝中…",

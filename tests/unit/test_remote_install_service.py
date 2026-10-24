@@ -1,0 +1,162 @@
+import logging
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
+
+import pytest
+
+from services import remote_install_service
+from services.remote_install_service import CONFIG_KEY, RemoteInstallService
+
+CREDENTIALS = {"member_id": "4242", "secret_key": "TopSecret"}
+
+
+@pytest.fixture
+def service(qapp):
+    state = SimpleNamespace(local_config={CONFIG_KEY: dict(CREDENTIALS)})
+    return RemoteInstallService(state, Mock())
+
+
+def _mod(*file_ids):
+    return SimpleNamespace(gamebanana_supported_files=[{"id": file_id} for file_id in file_ids])
+
+
+def _reply(status=200, payload=None):
+    reply = Mock(status_code=status)
+    reply.json.return_value = payload if payload is not None else []
+    reply.raise_for_status.side_effect = None if status < 400 else RuntimeError(f"HTTP {status}")
+    return reply
+
+
+def test_pair_stores_the_key_and_starts_polling(service):
+    service.app_state.local_config = {}
+
+    with patch.object(service, "poll") as poll:
+        service.pair("1", "key")
+
+    assert service.app_state.local_config[CONFIG_KEY] == {"member_id": "1", "secret_key": "key"}
+    service.settings_service.write_local_config.assert_called_once()
+    assert service._timer.isActive()
+    poll.assert_called_once()
+    service._timer.stop()
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        "https://gamebanana.com/mmdl/9001,Mod,111",
+        "https//gamebanana.com/mmdl/9001,Mod,111",
+        "gamebanana.com/mmdl/9001,mod,111",
+        "http://www.gamebanana.com/mmdl/9001,MOD,111",
+    ],
+)
+def test_entry_resolves_to_its_file(service, entry):
+    emitted = []
+    service.mod_ready.connect(lambda mod, file: emitted.append(file))
+    mod = _mod(9000, 9001)
+
+    with patch.object(remote_install_service.GameBananaAPI, "get_installable_mod", return_value=mod) as lookup:
+        service._queue(entry)
+
+    assert emitted == [{"id": 9001}]
+    assert lookup.call_args.args == (111, "Mod")
+
+
+def test_wip_entry_is_looked_up_as_a_wip(service):
+    with patch.object(remote_install_service.GameBananaAPI, "get_installable_mod", return_value=_mod(5)) as lookup:
+        service._queue("https://gamebanana.com/mmdl/5,Wip,7")
+
+    assert lookup.call_args.args == (7, "Wip")
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        "https://evil.example.com/x.zip,Mod,1",
+        "https://gamebanana.com.evil.test/mmdl/5,Mod,1",
+        "https://evil.example.com/gamebanana.com/mmdl/5,Mod,1",
+        "https://gamebanana.com/mmdl/5,Mod",
+        "https://gamebanana.com/mmdl/5,Tool,1",
+        "https://gamebanana.com/mmdl/x,Mod,1",
+        "",
+        42,
+        None,
+    ],
+)
+def test_foreign_or_malformed_entries_are_dropped_before_any_request(service, entry):
+    with patch.object(remote_install_service.GameBananaAPI, "get_installable_mod") as lookup:
+        service._queue(entry)
+
+    lookup.assert_not_called()
+
+
+def test_entry_for_a_file_the_mod_does_not_have_is_dropped(service):
+    emitted = []
+    service.mod_ready.connect(lambda *args: emitted.append(args))
+
+    with patch.object(remote_install_service.GameBananaAPI, "get_installable_mod", return_value=_mod(1)):
+        service._queue("https://gamebanana.com/mmdl/2,Mod,1")
+
+    assert emitted == []
+
+
+def test_one_broken_entry_does_not_stop_the_rest(service):
+    emitted = []
+    service.mod_ready.connect(lambda mod, file: emitted.append(file))
+    lookups = [RuntimeError("gone"), _mod(2)]
+
+    with (
+        patch.object(remote_install_service, "get_session") as session,
+        patch.object(remote_install_service.GameBananaAPI, "get_installable_mod", side_effect=lookups),
+    ):
+        session.return_value.get.return_value = _reply(payload=["https://gamebanana.com/mmdl/1,Mod,1", "https://gamebanana.com/mmdl/2,Mod,2"])
+        service._busy = True
+        service._fetch(CREDENTIALS)
+
+    assert emitted == [{"id": 2}]
+    assert not service._busy
+
+
+def test_poll_asks_the_member_queue_for_this_app(service):
+    with patch.object(remote_install_service, "get_session") as session:
+        session.return_value.get.return_value = _reply()
+        service._fetch(CREDENTIALS)
+
+    assert session.return_value.get.call_args.args[0].endswith("/RemoteInstall/4242/TopSecret/G3M")
+
+
+def test_rejected_key_stops_the_polling(service):
+    service._timer.start()
+    with patch.object(remote_install_service, "get_session") as session:
+        session.return_value.get.return_value = _reply(status=404)
+        service._fetch(CREDENTIALS)
+
+    service.poll()
+
+    assert service._rejected
+    assert not service._timer.isActive()
+
+
+def test_server_error_keeps_polling(service):
+    with patch.object(remote_install_service, "get_session") as session:
+        session.return_value.get.return_value = _reply(status=503)
+        service._fetch(CREDENTIALS)
+
+    assert not service._rejected
+
+
+def test_secret_key_never_reaches_the_log(service, caplog):
+    with patch.object(remote_install_service, "get_session") as session, caplog.at_level(logging.DEBUG):
+        session.return_value.get.side_effect = RuntimeError(f"failed for {CREDENTIALS['secret_key']}")
+        service._fetch(CREDENTIALS)
+
+    assert caplog.records
+    assert "TopSecret" not in caplog.text
+
+
+def test_unpaired_service_does_not_poll(service):
+    service.app_state.local_config = {}
+    with patch.object(remote_install_service.threading, "Thread") as thread:
+        service.start()
+        service.poll()
+
+    thread.assert_not_called()

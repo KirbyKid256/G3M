@@ -1008,6 +1008,8 @@
     "clear_downloads": "다운로드 기록 비우기",
     "open_folder": "폴더 열기",
     "external_download": "외부 다운로드",
+    "remote_install_title": "GameBanana 원격 설치",
+    "remote_install_pair": "이 G3M을 GameBanana 원격 설치에 연결할까요? GameBanana에서 보낸 모드가 자동으로 여기에 다운로드됩니다.",
     "empty_list": "아직 다운로드한 항목이 없습니다.",
     "status_downloading": "다운로드 중 {progress}%",
     "status_installing": "설치 중…",

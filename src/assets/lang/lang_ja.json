@@ -1008,6 +1008,8 @@
     "clear_downloads": "ダウンロードをクリアする",
     "open_folder": "フォルダーを開く",
     "external_download": "外部ダウンロード",
+    "remote_install_title": "GameBanana リモートインストール",
+    "remote_install_pair": "この G3M を GameBanana のリモートインストールに接続しますか？GameBanana から送った MOD は自動的にここへダウンロードされます。",
     "empty_list": "ダウンロード履歴はまだありません。",
     "status_downloading": "{progress}% をダウンロード中",
     "status_installing": "インストール中…",

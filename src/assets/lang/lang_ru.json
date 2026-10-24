@@ -1008,6 +1008,8 @@
     "clear_downloads": "Очистить загрузки",
     "open_folder": "Открыть папку",
     "external_download": "Внешняя загрузка",
+    "remote_install_title": "Удалённая установка GameBanana",
+    "remote_install_pair": "Привязать этот G3M к удалённой установке GameBanana? Моды, отправленные с GameBanana, будут скачиваться сюда автоматически.",
     "empty_list": "Загрузок пока нет.",
     "status_downloading": "Загрузка {progress}%",
     "status_installing": "Установка…",
