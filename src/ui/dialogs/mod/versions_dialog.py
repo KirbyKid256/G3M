@@ -44,7 +44,7 @@ from ui.common.dialog_theme import (
     get_dialog_theme_values,
 )
 from ui.utils.thread_lifetime import ManagedQThread, retire_qthread
-from ui.utils.ui_utils import format_size
+from ui.utils.ui_utils import UIAnimator, format_size
 from utils.mod.utils import is_gamebanana_id
 from utils.mod.version_utils import apply_version_zip as _apply_version_zip
 from utils.mod.version_utils import (
@@ -370,7 +370,7 @@ class ModVersionsDialog(DynamicDialog):
         if hasattr(self, "_gb_btn"):
             self._gb_btn.setEnabled(not busy)
         if busy:
-            self._progress_bar.setValue(0)
+            UIAnimator.progress_to(self._progress_bar, 0, self._app_state)
 
     def _ask_version_name(self, default: str = "") -> str | None:
         name, ok = QInputDialog.getText(
@@ -507,9 +507,12 @@ class ModVersionsDialog(DynamicDialog):
         self._worker = _ModVersionWorker(
             url, self._mod_folder, version_name, parent=self
         )
-        self._worker.progress.connect(self._progress_bar.setValue)
+        self._worker.progress.connect(self._on_worker_progress)
         self._worker.result_ready.connect(self._on_worker_finished)
         self._worker.start()
+
+    def _on_worker_progress(self, value: int) -> None:
+        UIAnimator.progress_to(self._progress_bar, value, self._app_state)
 
     def _on_worker_finished(self, success: bool, error: str):
         if self._worker:
