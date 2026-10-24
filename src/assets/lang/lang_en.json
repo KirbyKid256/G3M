@@ -858,6 +858,7 @@
     "copy_font_failed": "Failed to copy font.",
     "gamebanana_install_failed": "Failed to install mod from GameBanana: {error}",
     "mod_uninstall_failed": "Failed to uninstall mod: {error}",
+    "mod_busy": "Mod '{mod_name}' is being patched or analyzed right now. Wait for it to finish or cancel it first.",
     "uninstall_failed": "Failed to uninstall mod",
     "game_running": "The game is already running. Close it first."
   },

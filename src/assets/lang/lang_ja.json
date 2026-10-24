@@ -858,6 +858,7 @@
     "copy_font_failed": "フォントのコピーに失敗しました。",
     "gamebanana_install_failed": "GameBanana からの MOD のインストールに失敗しました: {error}",
     "mod_uninstall_failed": "MODのアンインストールに失敗しました: {error}",
+    "mod_busy": "MOD「{mod_name}」は現在パッチ適用または分析中です。完了を待つか、先にキャンセルしてください。",
     "uninstall_failed": "MODのアンインストールに失敗しました",
     "game_running": "ゲームはすでに実行されています。まず閉じてください。"
   },

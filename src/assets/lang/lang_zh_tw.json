@@ -858,6 +858,7 @@
     "copy_font_failed": "複製字體失敗。",
     "gamebanana_install_failed": "從GameBanana安裝模組失敗：{error}",
     "mod_uninstall_failed": "卸載模組失敗：{error}",
+    "mod_busy": "模組「{mod_name}」正在套用補丁或分析中。請等待完成，或先取消操作。",
     "uninstall_failed": "卸載模組失敗",
     "game_running": "遊戲已經在執行。請先關閉它。"
   },

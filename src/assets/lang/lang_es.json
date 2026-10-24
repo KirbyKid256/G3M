@@ -858,6 +858,7 @@
     "copy_font_failed": "No se pudo copiar la fuente.",
     "gamebanana_install_failed": "Error al instalar el mod desde GameBanana: {error}",
     "mod_uninstall_failed": "Error al desinstalar mod: {error}",
+    "mod_busy": "El mod '{mod_name}' se está parcheando o analizando ahora. Espera a que termine o cancélalo primero.",
     "uninstall_failed": "Error al desinstalar mod",
     "game_running": "El juego ya se está ejecutando. Ciérralo primero."
   },

@@ -14,6 +14,7 @@ from contextlib import ExitStack, suppress
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from services.mod_usage import hold_mods
 from utils.mod.archive import (
     ArchiveVirtualPath,
     archive_format,
@@ -358,6 +359,16 @@ class ModOperationExecutor:
         progress: ProgressFunction | None = None,
         is_cancelled: Callable[[], bool] | None = None,
         step_progress: StepProgressFunction | None = None,
+    ) -> ModOperationJournal:
+        with hold_mods(operation.mod_id for operation in plan.operations):
+            return self._execute(plan, progress, is_cancelled, step_progress)
+
+    def _execute(
+        self,
+        plan: ModOperationPlan,
+        progress: ProgressFunction | None,
+        is_cancelled: Callable[[], bool] | None,
+        step_progress: StepProgressFunction | None,
     ) -> ModOperationJournal:
         if plan.has_errors:
             raise ModOperationExecutionError("operation plan contains unresolved errors")

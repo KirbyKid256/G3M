@@ -11,7 +11,7 @@ from PyQt6.QtCore import QObject, pyqtSignal
 
 import models.mod_models as mod_models
 from config.config import MOD_CONFIG_FILENAME
-from models.exceptions import ModUninstallationError
+from models.exceptions import AppError, ModUninstallationError
 from models.mod_models import BrowserModInfo, LocalModInfo, get_mod_authors
 from services.localization_service import tr
 from services.migration_service import migrate_mod_metadata
@@ -19,6 +19,7 @@ from services.mod_config_migration_service import (
     ModConfigMigrationIssue,
     migrate_managed_mods,
 )
+from services.mod_usage import ModInUseError, is_mod_busy, reserve_for_deletion
 from utils.file_utils import (
     load_json,
     save_json,
@@ -519,6 +520,9 @@ class ModManager(QObject):
             self.app_state.is_installing = False
             self.mod_list_updated.emit()
             self.status_changed.emit(tr("status.mod_uninstalled"), "status_success")
+        except AppError as e:
+            self._safe_show_feedback_message("warning", tr("errors.error"), str(e))
+            raise
         except Exception as e:
             mod_id = get_mod_id(mod) or "unknown"
             mod_name = get_mod_name(mod, "Unknown Mod")
@@ -563,7 +567,14 @@ class ModManager(QObject):
             return False
         logger.info(f"delete_mod_files: Deleting mod folder by {label}: {folder_path}")
         try:
-            if safe_rmtree(folder_path):
+            # Whatever the descriptor says, a folder an operation is using is never removed,
+            # and no operation can start on it until the removal is over.
+            try:
+                with reserve_for_deletion(self._installed_mod_ids_at(folder_path)):
+                    deleted = safe_rmtree(folder_path)
+            except ModInUseError as error:
+                raise AppError("errors.mod_busy", mod_name=os.path.basename(folder_path)) from error
+            if deleted:
                 self.invalidate_mods_cache()
                 logger.info(
                     f"delete_mod_files: Successfully deleted mod folder by {label}: {folder_path}"
@@ -642,7 +653,28 @@ class ModManager(QObject):
                 return cached_info
         return None
 
+    def _installed_mod_ids_at(self, folder_path: str | None) -> list[str]:
+        if not folder_path:
+            return []
+        wanted = os.path.normcase(os.path.abspath(folder_path))
+        ids: list[str] = []
+        for cached_id, info in self._get_mods_cache().items():
+            if os.path.normcase(os.path.abspath(info.folder_path)) == wanted:
+                ids.extend((cached_id, str(info.config_data.get("id") or "")))
+        return ids
+
+    def ensure_mod_idle(self, mod_data) -> None:
+        """Raise AppError while a patch, analysis or export is still using the mod's files."""
+        folder = (
+            mod_data.get("folder_path")
+            if isinstance(mod_data, dict)
+            else getattr(mod_data, "folder_path", None)
+        )
+        if any(is_mod_busy(mod_id) for mod_id in (get_mod_id(mod_data), *self._installed_mod_ids_at(folder))):
+            raise AppError("errors.mod_busy", mod_name=get_mod_name(mod_data, ""))
+
     def delete_mod_files(self, mod_data):
+        self.ensure_mod_idle(mod_data)
         try:
             folder_path = (
                 mod_data.folder_path
