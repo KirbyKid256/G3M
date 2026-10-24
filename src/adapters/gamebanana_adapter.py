@@ -19,6 +19,7 @@ from config.config import (
     NETWORK_TIMEOUT_MEDIUM,
     NETWORK_TIMEOUT_SHORT,
 )
+from models.exceptions import AppError
 from models.game_modes import get_gamebanana_reverse_map
 from models.mod_models import BrowserModInfo
 from utils.mod.tags import normalize_tag
@@ -280,6 +281,24 @@ class GameBananaAPI:
             itemtype,
             max_retries,
         )
+
+    def get_installable_mod(self, mod_id: int, item_type: str = "Mod") -> BrowserModInfo:
+        """The mod with its downloadable files, ready to install straight from a link; raises AppError."""
+        profile = self.get_mod_profile_page(mod_id, itemtype=item_type, max_retries=0, timeout=NETWORK_TIMEOUT_SHORT)
+        if not profile:
+            raise AppError("errors.mod_not_found")
+        game_id = self._safe_int((profile.get("_aGame") or {}).get("_idRow")) or 0
+        mod = self._map_mod_data(profile, get_gamebanana_reverse_map().get(game_id, "deltarune"), is_wip=item_type == "Wip")
+        if not mod:
+            raise AppError("errors.mod_not_found")
+        files = profile.get("_aFiles") or []
+        for entry in files.values() if isinstance(files, dict) else files:
+            if not isinstance(entry, dict) or not (file_id := self._safe_int(entry.get("_idRow"))) or not entry.get("_bHasContents", True) or entry.get("_bIsArchived"):
+                continue
+            mod.gamebanana_supported_files.append(self._build_file_metadata(file_id, entry))
+        if not mod.gamebanana_supported_files:
+            raise AppError("errors.mod_no_files", mod_name=mod.name)
+        return mod
 
     def get_mod_profile_page(self, mod_id, itemtype="Mod", max_retries=2, timeout=None):
         data = self._api_request(
