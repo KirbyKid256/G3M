@@ -500,7 +500,7 @@ class SearchModCardWidget(ModCardWidget):
     def _update_actions_visibility(self):
         if hasattr(self, "expanded_widget"):
             should_show = bool(self.is_selected)
-            if self.expanded_widget.isVisible() != should_show:
+            if self.expanded_widget.isVisibleTo(self) != should_show:  # isVisible() is false while the whole tab is hidden
                 self.expanded_widget.setVisible(should_show)
                 self._refresh_card_geometry(invalidate_parent=True, force=True)
 
