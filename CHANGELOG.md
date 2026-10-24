@@ -7,6 +7,8 @@
 - Added a **+** button beside the game list in Manual installation, so a missing custom game can be added on the spot.
 - A custom game can now have its own **Game ID**, also changeable when editing it. The custom game window is wider.
 - Progress bars across G3M now fill smoothly, unless animations are disabled.
+- Added GameBanana **Remote Install**: after pairing G3M on GameBanana, mods you send from the site download here within a minute, with no prompts.
+- Mods that finish downloading together are now installed one after another.
 - Fixed an installed local mod showing up in Mods Browser as a second card next to the same mod from GameBanana.
 
 </details>
