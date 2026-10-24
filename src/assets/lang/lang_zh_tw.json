@@ -1417,6 +1417,8 @@
     "mod_unknown_manual_note": "此模組所屬的遊戲尚未在 G3M 中設定，因此需要手動安裝。",
     "add_for_mod_help": "「{name}」需要這個遊戲。其 ID 來自模組；請選擇遊戲的可執行檔和資料檔，模組將隨即安裝。",
     "game_id_label": "遊戲 ID",
+    "game_id_placeholder": "可選",
+    "game_id_help": "模組及其檔案用來指稱此遊戲的簡短名稱,例如 deltarune 或 undertaleyellow。留空則自動產生。不能使用內建遊戲的 ID。",
     "validation_id_invalid": "遊戲 ID 無效。",
     "validation_id_taken": "已存在使用此 ID 的遊戲。",
     "manager_title": "遊戲管理器",

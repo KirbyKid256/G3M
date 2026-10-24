@@ -1423,6 +1423,8 @@
     "mod_unknown_manual_note": "このModの対象ゲームはG3Mに設定されていないため、手動でインストールする必要があります。",
     "add_for_mod_help": "「{name}」にはこのゲームが必要です。IDはModから取得されます。ゲームの実行ファイルとデータファイルを指定すると、すぐにModがインストールされます。",
     "game_id_label": "ゲームID",
+    "game_id_placeholder": "オプション",
+    "game_id_help": "Modとそのファイルがこのゲームを指す短い名前です(例: deltarune、undertaleyellow)。空欄の場合は自動で作成されます。組み込みゲームのIDは使えません。",
     "validation_id_invalid": "ゲームIDが無効です。",
     "validation_id_taken": "このIDのゲームは既に存在します。",
     "manager_title": "ゲームマネージャー",

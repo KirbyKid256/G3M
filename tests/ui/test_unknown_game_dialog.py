@@ -1,6 +1,7 @@
 """Handling a G3M mod made for a game that is not set up."""
 
 import threading
+from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
@@ -47,6 +48,10 @@ def test_a_known_game_needs_no_question(host, monkeypatch):
 
 def test_manual_install_is_the_fallback_without_a_registry(qapp):
     assert resolve_unknown_game(QWidget(), "mystery", "Pack") == MANUAL_INSTALL
+
+
+def test_an_owner_that_is_not_a_qt_object_falls_back_to_manual_install():
+    assert resolve_unknown_game(SimpleNamespace(), "mystery", "Pack") == MANUAL_INSTALL
 
 
 def test_the_user_can_pick_manual_install(host, monkeypatch):
@@ -137,3 +142,21 @@ def test_an_id_the_registry_would_reject_falls_back_to_manual_install(host, monk
     monkeypatch.setattr(module.DynamicMessageBox, "exec", lambda _box: pytest.fail("asked"))
 
     assert resolve_unknown_game(host, "mystery", "Pack") == MANUAL_INSTALL
+
+
+def test_custom_game_dialog_offers_an_optional_game_id(qapp, app_state):
+    dialog = CustomGameDialog(app_state)
+    dialog.display_name_edit.setText("Hotline")
+
+    assert dialog.minimumWidth() >= 915
+    assert dialog.game_id_edit.placeholderText() == module.tr("games.game_id_placeholder")
+    assert dialog.values()["game_id"] == ""
+    dialog.game_id_edit.setText(" Hotline-Game ")
+    assert dialog.values()["game_id"] == "hotline-game"
+
+
+def test_custom_game_dialog_fixes_the_id_a_mod_names(qapp, app_state):
+    dialog = CustomGameDialog(app_state, game_id="mystery")
+
+    assert dialog.game_id_edit.isReadOnly()
+    assert "game_id" not in dialog.values()

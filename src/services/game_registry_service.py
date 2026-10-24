@@ -45,6 +45,7 @@ class GameRegistryService(QObject):
     """Loads, validates, persists, and publishes runtime game entries."""
 
     games_changed = pyqtSignal()
+    game_renamed = pyqtSignal(str, str)  # old id, new id; emitted before games_changed
 
     def __init__(self, app_state, settings_service, parent=None) -> None:
         super().__init__(parent)
@@ -103,16 +104,21 @@ class GameRegistryService(QObject):
 
     def update_custom_game(
         self,
-        game_id: str,
+        current_id: str,
         display_name: str,
         primary_executable: str,
         data_file_name: str,
         steam_app_id: str = "",
         gamebanana_id: str = "",
+        game_id: str = "",
     ) -> CustomGameRecord:
-        record = self._find_custom_game(game_id)
+        """Edit a custom game; a different ``game_id`` renames it, an empty one keeps the current id."""
+        record = self._find_custom_game(current_id)
+        new_id = game_id.strip() or current_id
+        if new_id != current_id:
+            self._validate_game_id(new_id)
         updated = CustomGameRecord(
-            id=record.id,
+            id=new_id,
             display_name=display_name.strip(),
             primary_executable=self._validate_executable(primary_executable),
             data_file_name=self._validate_data_file_name(data_file_name),
@@ -123,11 +129,18 @@ class GameRegistryService(QObject):
             created_at=record.created_at,
             updated_at=utc_now_iso(),
         )
-        self._validate_record(updated, editing_id=game_id)
+        self._validate_record(updated, editing_id=current_id)
         self.state.custom_games = [
-            updated if item.id == game_id else item for item in self.state.custom_games
+            updated if item.id == current_id else item for item in self.state.custom_games
         ]
-        self._save_and_publish()
+        if new_id == current_id:
+            self._save_and_publish()
+            return updated
+        self.state.order = [new_id if item == current_id else item for item in self.state.order]
+        self.state.visibility[new_id] = self.state.visibility.pop(current_id, True)
+        self._write_state()
+        self.game_renamed.emit(current_id, new_id)  # before publishing, so the UI refresh sees the moved data
+        self._publish()
         return updated
 
     def delete_custom_game(self, game_id: str) -> None:

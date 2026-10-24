@@ -1,22 +1,42 @@
 """Dialog for creating or editing a custom game."""
 
+import logging
+from collections.abc import Callable
 from typing import cast
 
 from PyQt6.QtWidgets import (
+    QDialog,
     QDialogButtonBox,
     QFormLayout,
     QLabel,
     QLineEdit,
+    QMessageBox,
     QPushButton,
     QVBoxLayout,
 )
 
+from services.game_registry_service import GameRegistryValidationError
 from services.localization_service import tr
 from ui.common.dialog_theme import (
     DynamicDialog,
     apply_dialog_theme,
     get_dialog_theme_values,
 )
+
+logger = logging.getLogger(__name__)
+
+
+def run_custom_game_dialog(dialog: CustomGameDialog, save: Callable[[dict[str, str]], object]) -> bool:
+    """Show ``dialog`` until ``save(values)`` succeeds, keeping the typed text after an error; False on cancel."""
+    while dialog.exec() == QDialog.DialogCode.Accepted:
+        try:
+            save(dialog.values())
+        except GameRegistryValidationError as error:
+            logger.info("Custom game rejected: %s", error.key)
+            QMessageBox.warning(dialog, tr("games.manager_title"), tr(error.key))
+            continue
+        return True
+    return False
 
 
 class CustomGameDialog(DynamicDialog):
@@ -44,7 +64,7 @@ class CustomGameDialog(DynamicDialog):
             tr("games.edit_custom_title") if record else tr("games.add_custom_title")
         )
         self.setModal(True)
-        self.setMinimumWidth(420)
+        self.setMinimumWidth(915)
         self._build_ui()
         self.apply_theme()
 
@@ -74,6 +94,14 @@ class CustomGameDialog(DynamicDialog):
         )
         self.display_name_edit.setPlaceholderText(tr("games.display_name_placeholder"))
         form.addRow(tr("games.display_name_label"), self.display_name_edit)
+        if not self.game_id:
+            self.game_id_edit = QLineEdit(self.record.id if self.record else "")
+            self.game_id_edit.setPlaceholderText(tr("games.game_id_placeholder"))
+            form.addRow(tr("games.game_id_label"), self.game_id_edit)
+            self.game_id_help = QLabel(tr("games.game_id_help"))
+            self.game_id_help.setObjectName("customGameHelpLabel")
+            self.game_id_help.setWordWrap(True)
+            form.addRow("", self.game_id_help)
         self.primary_executable_edit = QLineEdit(
             self.record.primary_executable if self.record else ""
         )
@@ -130,8 +158,11 @@ class CustomGameDialog(DynamicDialog):
         )
         if self.game_id:
             self.mod_help.setText(tr("games.add_for_mod_help", name=self.mod_name))
-            if isinstance(label := self.form_layout.labelForField(self.game_id_edit), QLabel):
-                label.setText(tr("games.game_id_label"))
+        else:
+            self.game_id_edit.setPlaceholderText(tr("games.game_id_placeholder"))
+            self.game_id_help.setText(tr("games.game_id_help"))
+        if isinstance(label := self.form_layout.labelForField(self.game_id_edit), QLabel):
+            label.setText(tr("games.game_id_label"))
         for field, label_key, placeholder_key in (
             (
                 self.display_name_edit,
@@ -171,10 +202,14 @@ class CustomGameDialog(DynamicDialog):
         )
 
     def values(self) -> dict[str, str]:
-        return {
+        """The form values; the game ID is only included when this dialog lets the user choose it."""
+        values = {
             "display_name": self.display_name_edit.text().strip(),
             "primary_executable": self.primary_executable_edit.text().strip(),
             "data_file_name": self.data_file_name_edit.text().strip(),
             "steam_app_id": self.steam_app_id_edit.text().strip(),
             "gamebanana_id": self.gamebanana_id_edit.text().strip(),
         }
+        if not self.game_id:
+            values["game_id"] = self.game_id_edit.text().strip().lower()
+        return values

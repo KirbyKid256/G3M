@@ -1431,6 +1431,8 @@
     "mod_unknown_manual_note": "El juego para el que está hecho este mod no está configurado en G3M, así que hay que instalarlo manualmente.",
     "add_for_mod_help": "«{name}» necesita este juego. Su ID viene del mod; elige el ejecutable y el archivo de datos del juego y el mod se instalará de inmediato.",
     "game_id_label": "ID del juego",
+    "game_id_placeholder": "Opcional",
+    "game_id_help": "Nombre corto que los mods y sus archivos usan para este juego, como deltarune o undertaleyellow. Déjalo vacío para crearlo automáticamente. No se pueden usar los ID de los juegos integrados.",
     "validation_id_invalid": "El ID del juego no es válido.",
     "validation_id_taken": "Ya existe un juego con este ID.",
     "manager_title": "Gestor de juegos",

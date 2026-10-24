@@ -2,17 +2,15 @@
 
 import logging
 from collections.abc import Callable
-from typing import cast
+from typing import Any, cast
 
-from PyQt6.QtCore import QObject
-from PyQt6.QtWidgets import QDialog, QMessageBox, QPushButton
+from PyQt6.QtWidgets import QMessageBox, QPushButton
 
 from models.game_modes import get_game, get_gamebanana_reverse_map
-from services.game_registry_service import GameRegistryValidationError
 from services.localization_service import tr
 from ui.common.dialog_theme import DynamicMessageBox
-from ui.dialogs.custom_game_dialog import CustomGameDialog
-from ui.utils.gui_thread import GuiThreadCall, dialog_parent
+from ui.dialogs.custom_game_dialog import CustomGameDialog, run_custom_game_dialog
+from ui.utils.gui_thread import GuiThreadCall, dialog_parent, find_attribute
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +18,8 @@ GAME_READY = "ready"
 MANUAL_INSTALL = "manual"
 
 
-def _find_attribute(owner: QObject | None, name: str):
-    while owner is not None:
-        if (value := getattr(owner, name, None)) is not None:
-            return value
-        owner = owner.parent()
-    return None
-
-
 def resolve_unknown_game(
-    owner: QObject | None,
+    owner: Any,
     game_id: str,
     mod_name: str,
     gamebanana_id: int | None = None,
@@ -41,8 +31,8 @@ def resolve_unknown_game(
     """
     if get_game(game_id) is not None:
         return GAME_READY
-    registry = _find_attribute(owner, "game_registry_service")
-    app_state = _find_attribute(owner, "app_state")
+    registry = find_attribute(owner, "game_registry_service")
+    app_state = find_attribute(owner, "app_state")
     if registry is None or app_state is None or not registry.is_valid_new_game_id(game_id):
         return MANUAL_INSTALL
     parent = dialog_parent(owner)
@@ -69,15 +59,8 @@ def resolve_unknown_game(
     # A GameBanana game that is already supported cannot also be the new game's GameBanana game.
     prefilled = None if gamebanana_id in get_gamebanana_reverse_map() else gamebanana_id
     dialog = CustomGameDialog(app_state, parent=parent, game_id=game_id, mod_name=mod_name, gamebanana_id=prefilled)
-    while dialog.exec() == QDialog.DialogCode.Accepted:
-        try:
-            registry.create_custom_game(**dialog.values(), game_id=game_id)
-        except GameRegistryValidationError as error:
-            logger.info("Custom game for %s rejected: %s", game_id, error.key)
-            QMessageBox.warning(dialog, tr("games.manager_title"), tr(error.key))
-            continue
-        return GAME_READY
-    return None
+    saved = run_custom_game_dialog(dialog, lambda values: registry.create_custom_game(**values, game_id=game_id))
+    return GAME_READY if saved else None
 
 
 class WorkerGameResolver(GuiThreadCall):

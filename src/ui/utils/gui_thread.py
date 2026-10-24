@@ -9,6 +9,18 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from PyQt6.QtWidgets import QApplication, QWidget
 
 
+def find_attribute(owner: Any, name: str) -> Any:
+    """First non-None ``name`` on ``owner`` or its parents; owners need not be Qt objects."""
+    seen = set()
+    while owner is not None and id(owner) not in seen:
+        seen.add(id(owner))
+        if (value := getattr(owner, name, None)) is not None:
+            return value
+        parent = getattr(owner, "parent", None)
+        owner = parent() if callable(parent) else None
+    return None
+
+
 def dialog_parent(owner: QObject | None) -> QWidget | None:
     """The widget a dialog for ``owner`` belongs to, else the active window."""
     while owner is not None and not isinstance(owner, QWidget):

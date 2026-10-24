@@ -178,3 +178,54 @@ def test_registry_reports_whether_an_id_is_free_for_a_new_game(registry_service)
     assert registry_service.is_valid_new_game_id("brand-new")
     assert not registry_service.is_valid_new_game_id("deltarune")
     assert not registry_service.is_valid_new_game_id("Bad Id")
+
+
+def _custom(registry_service, game_id=""):
+    return registry_service.create_custom_game(
+        display_name="Hotline Game",
+        primary_executable="hotline.exe",
+        data_file_name="data.win",
+        game_id=game_id,
+    )
+
+
+def test_editing_a_custom_game_can_rename_its_id(registry_service):
+    record = _custom(registry_service, "hotline")
+    renamed = []
+    registry_service.game_renamed.connect(lambda old, new: renamed.append((old, new)))
+
+    registry_service.update_custom_game(
+        "hotline", "Hotline Game", "hotline.exe", "data.win", game_id="hotline-2"
+    )
+
+    assert renamed == [("hotline", "hotline-2")]
+    assert get_game("hotline") is None
+    assert get_game("hotline-2") is not None
+    assert "hotline-2" in registry_service.state.order
+    assert "hotline" not in registry_service.state.order
+    assert registry_service.is_visible("hotline-2")
+    assert record.id == "hotline"
+
+
+def test_editing_a_custom_game_keeps_its_id_when_none_is_given(registry_service):
+    _custom(registry_service, "hotline")
+    registry_service.game_renamed.connect(lambda *_: pytest.fail("renamed"))
+
+    registry_service.update_custom_game("hotline", "Hotline Game 2", "hotline.exe", "data.win")
+    registry_service.update_custom_game(
+        "hotline", "Hotline Game 3", "hotline.exe", "data.win", game_id="hotline"
+    )
+
+    assert get_game("hotline") is not None
+
+
+def test_renaming_a_custom_game_cannot_take_a_built_in_id(registry_service):
+    _custom(registry_service, "hotline")
+
+    with pytest.raises(GameRegistryValidationError) as caught:
+        registry_service.update_custom_game(
+            "hotline", "Hotline Game", "hotline.exe", "data.win", game_id="deltarune"
+        )
+
+    assert caught.value.key == "games.validation_id_taken"
+    assert get_game("hotline") is not None

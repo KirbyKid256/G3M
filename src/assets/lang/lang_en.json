@@ -1444,6 +1444,8 @@
     "mod_unknown_manual_note": "The game this mod is made for is not set up in G3M, so it has to be installed manually.",
     "add_for_mod_help": "'{name}' needs this game. Its ID comes from the mod; choose the game's executable and data file, then the mod is installed right away.",
     "game_id_label": "Game ID",
+    "game_id_placeholder": "Optional",
+    "game_id_help": "A short name that mods and mod files use for this game, such as deltarune or undertaleyellow. Leave it empty to create one automatically. IDs of built-in games cannot be used.",
     "validation_id_invalid": "The game ID is not valid.",
     "validation_id_taken": "A game with this ID already exists.",
     "manager_title": "Game Manager",
