@@ -10,6 +10,7 @@
 - Added GameBanana **Remote Install**: after pairing G3M on GameBanana, mods you send from the site download here within a minute, with no prompts.
 - Mods that finish downloading together are now installed one after another.
 - Fixed an installed local mod showing up in Mods Browser as a second card next to the same mod from GameBanana.
+- Fixed Cancel not stopping a patch in progress and a deleted mod blocking the next launch; a mod can no longer be deleted while it is being patched or analyzed.
 
 </details>
 
