@@ -112,7 +112,7 @@
     "mod_summary_show_all": "Показать всё",
     "mod_summary_show_summary": "Показать сводку",
     "mod_summary_all_operations": "Все операции ({count})",
-    "more_operation_warnings": "... и ещё предупреждений об операциях: {count}",
+    "more_in_log": "... и ещё {count}. Подробности в логе.",
     "manual_install_hint": "{count} элементов · {configured} настроено · {unconfigured} не настроено",
     "manual_install_configure": "Сохранить и настроить",
     "manual_install_unconfigured": "Не настроено",

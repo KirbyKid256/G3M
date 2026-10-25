@@ -27,7 +27,7 @@ from ui.dialogs.file_picker_dialog import GameBananaFilePickerDialog
 from ui.utils.thread_lifetime import retire_qthread
 from utils.mod.utils import get_mod_id, is_gamebanana_id
 from utils.native_integration import get_existing_directory
-from utils.process_utils import format_filesystem_error
+from utils.process_utils import format_filesystem_error, join_limited
 from workers.install.full_install_worker import FullInstallThread
 
 logger = logging.getLogger(__name__)
@@ -944,10 +944,10 @@ class GameLaunchController(QObject):
             self._mod_update_dialog.set_busy(False)
             outcomes = []
             if batch["failed"]:
-                outcomes.append(("mod_updates.failed", {"names": ", ".join(batch["failed"])}))
+                outcomes.append(("mod_updates.failed", {"names": join_limited(batch["failed"])}))
             if batch["manual"]:
                 outcomes.append(
-                    ("mod_updates.manual_required", {"names": ", ".join(batch["manual"])})
+                    ("mod_updates.manual_required", {"names": join_limited(batch["manual"])})
                 )
             if outcomes:
                 self._mod_update_dialog.set_outcome_messages(outcomes)

@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from services.localization_service import tr
 from services.mod_operation_executor import (
     ModOperationCancelledError,
     ModOperationExecutionError,
@@ -28,18 +27,18 @@ from utils.mod.operation_plan import (
     build_profile_operation_plan,
 )
 from utils.mod.utils import get_mod_id
-from utils.process_utils import bounded_output_preview
+from utils.process_utils import (
+    SCROLL_DIALOG_MAX_CHARS,
+    SCROLL_DIALOG_MAX_LINES,
+    bounded_output_preview,
+    limit_dialog_text,
+)
 
 _DIRECT_ABSOLUTE_CODES = frozenset({"direct_absolute_source", "direct_absolute_target"})
-_MAX_OPERATION_WARNING_LINES = 100
 
 
 def _bounded_warning_lines(lines: list[str]) -> str:
-    visible = lines[:_MAX_OPERATION_WARNING_LINES]
-    hidden = len(lines) - len(visible)
-    if hidden:
-        visible.append(tr("ui.more_operation_warnings", count=hidden))
-    return "\n".join(visible)
+    return limit_dialog_text("\n".join(lines), SCROLL_DIALOG_MAX_LINES, SCROLL_DIALOG_MAX_CHARS)
 
 
 def direct_operation_paths_preapproved(local_config: dict | None) -> bool:

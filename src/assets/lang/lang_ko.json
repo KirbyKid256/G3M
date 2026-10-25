@@ -112,7 +112,7 @@
     "mod_summary_show_all": "모두 표시",
     "mod_summary_show_summary": "요약 표시",
     "mod_summary_all_operations": "모든 작업 ({count})",
-    "more_operation_warnings": "... 작업 경고 {count}개 더",
+    "more_in_log": "... 외 {count}개. 자세한 내용은 로그를 확인하세요.",
     "manual_install_hint": "항목 {count}개 · 설정됨 {configured}개 · 미설정 {unconfigured}개",
     "manual_install_configure": "저장 후 추가 설정",
     "manual_install_unconfigured": "미설정",

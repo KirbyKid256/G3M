@@ -210,7 +210,10 @@ class ModConfigValidationError(ValueError):
 
     def __init__(self, issues: tuple[ConfigValidationIssue, ...]) -> None:
         self.issues = issues
-        super().__init__("; ".join(f"{issue.path}: {issue.message}" for issue in issues))
+        details = [f"{issue.path}: {issue.message}" for issue in issues]
+        if len(details) > 10:
+            details = [*details[:10], f"... and {len(details) - 10} more"]
+        super().__init__("; ".join(details))
 
 
 class _DuplicateJsonKeyError(ValueError):

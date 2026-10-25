@@ -52,6 +52,7 @@ from utils.path_utils import (
 )
 from utils.process_utils import (
     build_external_process_env,
+    join_limited,
     resolve_portproton_command,
     resolve_wine_command,
 )
@@ -2406,7 +2407,7 @@ class GameLauncher(QObject):
         elif errors:
             logger.error("[CLEANUP] %s", "; ".join(errors))
             self.status_changed.emit(
-                tr("errors.files_restore_error", error="; ".join(errors)),
+                tr("errors.files_restore_error", error=join_limited(errors, "; ")),
                 UI_COLORS["status_error"],
             )
         else:
@@ -2528,7 +2529,7 @@ class GameLauncher(QObject):
         self.launch_transaction.fail("operation-recovery")
         logger.error("operation session recovery failed: %s", "; ".join(errors))
         self._safe_feedback_status(
-            tr("errors.files_restore_error", error="; ".join(errors)),
+            tr("errors.files_restore_error", error=join_limited(errors, "; ")),
             UI_COLORS["status_error"],
         )
         self._finish_session_recovery()

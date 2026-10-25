@@ -112,7 +112,7 @@
     "mod_summary_show_all": "显示全部",
     "mod_summary_show_summary": "显示摘要",
     "mod_summary_all_operations": "全部操作 ({count})",
-    "more_operation_warnings": "... 还有 {count} 条操作警告",
+    "more_in_log": "... 还有 {count} 项。详情请查看日志。",
     "manual_install_hint": "{count} 个项目 · {configured} 个已配置 · {unconfigured} 个未配置",
     "manual_install_configure": "保存并进一步配置",
     "manual_install_unconfigured": "未配置",

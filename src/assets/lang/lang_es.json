@@ -112,7 +112,7 @@
     "mod_summary_show_all": "Mostrar todo",
     "mod_summary_show_summary": "Mostrar resumen",
     "mod_summary_all_operations": "Todas las operaciones ({count})",
-    "more_operation_warnings": "... y {count} advertencias de operaciones más",
+    "more_in_log": "... y {count} más. Consulta el registro para ver los detalles.",
     "manual_install_hint": "{count} elementos · {configured} configurados · {unconfigured} sin configurar",
     "manual_install_configure": "Guardar y configurar",
     "manual_install_unconfigured": "Sin configurar",

@@ -112,7 +112,7 @@
     "mod_summary_show_all": "Show all",
     "mod_summary_show_summary": "Show summary",
     "mod_summary_all_operations": "All operations ({count})",
-    "more_operation_warnings": "... and {count} more operation warnings",
+    "more_in_log": "... and {count} more. See the log for details.",
     "manual_install_hint": "{count} items · {configured} configured · {unconfigured} unconfigured",
     "manual_install_configure": "Save and configure",
     "manual_install_unconfigured": "Unconfigured",

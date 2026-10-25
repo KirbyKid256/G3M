@@ -112,7 +112,7 @@
     "mod_summary_show_all": "顯示全部",
     "mod_summary_show_summary": "顯示摘要",
     "mod_summary_all_operations": "所有操作 ({count})",
-    "more_operation_warnings": "... 還有 {count} 則操作警告",
+    "more_in_log": "... 還有 {count} 項。詳情請查看日誌。",
     "manual_install_hint": "{count} 個項目 · {configured} 個已設定 · {unconfigured} 個未設定",
     "manual_install_configure": "儲存並進一步設定",
     "manual_install_unconfigured": "未設定",

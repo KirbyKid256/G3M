@@ -112,7 +112,7 @@
     "mod_summary_show_all": "すべて表示",
     "mod_summary_show_summary": "概要を表示",
     "mod_summary_all_operations": "すべての操作 ({count})",
-    "more_operation_warnings": "... 他 {count} 件の操作に関する警告",
+    "more_in_log": "... 他 {count} 件。詳細はログを確認してください。",
     "manual_install_hint": "{count} 項目 · 設定済み {configured} · 未設定 {unconfigured}",
     "manual_install_configure": "保存して詳細設定",
     "manual_install_unconfigured": "未設定",
